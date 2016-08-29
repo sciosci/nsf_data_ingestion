@@ -1,4 +1,4 @@
-# Data ingestion sripts for NSF EAGER grant
+# Data ingestion scripts for NSF EAGER grant
 
 Scripts for retrieving, cleaning, and creating data from multiple repositories.
 
