@@ -11,3 +11,6 @@ The structure of the repository should be as follows:
  /medline
 ```
 
+## How to access the SOS cluster
+
+[Documentation](https://github.com/sciosci/nsf_data_ingestion/wiki/Accessing-and-running-jobs-in-the-SOS-cluster)
