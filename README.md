@@ -5,7 +5,7 @@ Scripts for retrieving, cleaning, and creating data from multiple repositories.
 The structure of the repository should be as follows:
 
 ```
-/src
+/nsf_data_ingestion
  /nber
  /arxiv
  /medline
