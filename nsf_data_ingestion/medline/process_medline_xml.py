@@ -38,7 +38,7 @@ if __name__ == '__main__':
     xml_path = sys.argv[1]
     # path to save parquet in hdfs
     parquet_path = sys.argv[2]
-    print("Reading from {} and writing to ".format(xml_path, parquet_path))
+    print("Reading from {} and writing to {}.".format(xml_path, parquet_path))
 
     medline_gzip_rdd = \
         spark.sparkContext.binaryFiles(os.path.join(xml_path, '*.xml.gz'),
