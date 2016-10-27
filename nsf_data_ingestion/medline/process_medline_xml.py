@@ -50,6 +50,6 @@ if __name__ == '__main__':
         max('delete').over(window).alias('is_deleted'),
         rank().over(window).alias('pos'), '*').\
         where('is_deleted = False and pos = 1').\
-        drop('is_deleted').drop('pos')
+        drop('is_deleted').drop('pos').drop('delete')
     last_medline_df.write.parquet(parquet_path)
     spark.stop()
