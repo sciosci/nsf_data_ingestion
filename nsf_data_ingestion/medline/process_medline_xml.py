@@ -16,7 +16,6 @@ def create_spark_session(name):
     spark = SparkSession.builder.\
         appName(name).\
         enableHiveSupport().\
-        config('spark.yarn.executor.memoryOverhead', '3g').\
         getOrCreate()
     spark.sparkContext.addPyFile(os.environ['PUBMEDPARSER_PATH'])
     return spark
@@ -45,8 +44,6 @@ if __name__ == '__main__':
                                        minPartitions=10000)
     preprocess = medline_gzip_rdd.flatMap(parse_gzip_medline_str)
     medline_df = preprocess.toDF()
-    medline_df.cache()
-    medline_df.count()
     window = Window.partitionBy(['pmid']).orderBy(desc('file_name'))
     # only get the last version of documents
     last_medline_df = medline_df.select(
