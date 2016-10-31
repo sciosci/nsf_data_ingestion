@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 # function to download the files using wget utility
 # unzip utility to unzip the files
@@ -16,7 +16,7 @@ def download_project_csv(year):
     get_ipython().system('unzip -o $filename')
 
 
-# In[48]:
+# In[2]:
 
 # function to download the files using wget utility
 # unzip utility to unzip the files
@@ -33,8 +33,23 @@ def download_abstract_csv(year):
 
 # In[ ]:
 
+# input the start and end year with help of system argument
+import sys
+start_year = sys.argv[1]
+end_year = sys.argv[2]
+
+
+# In[ ]:
+
 # calling the function to download all the files
-for year in range(2004:2015):
+for year in range(start_year,end_year + 1):
     download_project_csv(year)                  # download the project file as per the year called
     download_abstract_csv(year)                 # download the abstract file as per the year called
+
+
+# In[ ]:
+
+# put the downloaded files in the hdfs folder
+get_ipython().system('hdfs dfs -put FedRePORTER_PRJ_C_FY*.csv /user/msikri/FederalExporterDownload')
+get_ipython().system('hdfs dfs -put FedRePORTER_PRJABS_C_FY*.csv /user/msikri/FederalExporterDownload')
 
