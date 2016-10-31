@@ -109,5 +109,5 @@ if __name__ == "__main__":
     tfidf_df = tfidf_transformer.transform(content_windex_df). \
         select('row_id', 'source', 'id', 'tfidf')
 
-    tfidf_df.save.parquet(tfidf_path, mode='overwrite')
+    tfidf_df.write.parquet(tfidf_path, mode='overwrite')
     spark.stop()
