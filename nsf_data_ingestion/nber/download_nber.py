@@ -67,13 +67,16 @@ def parse_article_details(url):
 
     if soup_sel is not None:
         title = soup_sel.find('h1', attrs={'class':'title'}).text
-        names = soup_sel.find('h2', attrs={'class':'bibtop'}).findAll('a')
+        names = soup_sel.find('h2', attrs={'class':'bibtop'})
 
         authors = list()
-        for name in names:
-            author_name = name.text
-            author_link = name['href']
-            authors.append([author_name, 'http://www.nber.org/' + author_link])
+        try:
+            for name in names.findAll('a'):
+                author_name = name.text
+                author_link = name['href']
+                authors.append([author_name, 'http://www.nber.org' + author_link])
+        except:
+            authors = None
 
         abstract = soup_sel.findAll('p')[1].text.replace('\n', ' ').strip()
 
@@ -82,13 +85,18 @@ def parse_article_details(url):
             pdf_link = pdf.find('p').a['href']
         else:
             pdf_link = ''
-
-        dict_out = {'title': title,
-                    'abstract': abstract,
-                    'authors': authors,
-                    'pdf': pdf_link}
     else:
-        dict_out = {}
+        title = ''
+        abstract = ''
+        authors = None
+        pdf_link = ''
+
+    dict_out = {'title': title,
+                'abstract': abstract,
+                'authors': authors,
+                'pdf': pdf_link,
+                'url': url}
+
     return dict_out
 
 if __name__ == '__main__':
@@ -96,4 +104,4 @@ if __name__ == '__main__':
     paper_detail_links = pd.unique(list(map(lambda x: x[1], paper_links)))
     paper_details = [parse_article_details(p) for p in paper_detail_links]
     df = pd.DataFrame([parse_article_details(p) for p in paper_detail_links])
-    df.to_pickle('details.pickle')
+    df.to_pickle('nber_article_details.pickle')
