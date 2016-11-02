@@ -99,9 +99,33 @@ def parse_article_details(url):
 
     return dict_out
 
+def parse_author_details(url):
+    """
+    Parse details of given author url link
+    example link: http://www.nber.org/people/e._kathleen_adams
+    """
+    page = urlopen(url).read()
+    soup = BeautifulSoup(page, 'html.parser')
+    soup_sel = soup.find('td', attrs={'id' : 'mainContentTd'})
+    name = soup_sel.find('h1').find('span', attrs={'itemprop': 'name'}).text or ''
+    address = soup_sel.find('span', attrs={'itemprop': 'address'}).text or ''
+    working_paper = 'http://www.nber.org/authors_papers' + soup_sel.find('a')['href']
+
+    dict_author = {'name': name,
+                   'url': url,
+                   'address': address,
+                   'working_paper': working_paper}
+    return dict_author
+
 if __name__ == '__main__':
     paper_links = parse_paper_links(url='http://papers.nber.org/new_archive/')
     paper_detail_links = pd.unique(list(map(lambda x: x[1], paper_links)))
-    paper_details = [parse_article_details(p) for p in paper_detail_links]
-    df = pd.DataFrame([parse_article_details(p) for p in paper_detail_links])
+
+    article_details = list()
+    for p in paper_detail_links:
+        try:
+            article_details.append(parse_article_details(p))
+        except:
+            print(p)
+    df = pd.DateFrame(article_details)
     df.to_pickle('nber_article_details.pickle')
