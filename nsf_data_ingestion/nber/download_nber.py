@@ -127,5 +127,15 @@ if __name__ == '__main__':
             article_details.append(parse_article_details(p))
         except:
             print(p)
-    df = pd.DateFrame(article_details)
+
+    # scrape all NBER papers, hacky way
+    # article_details = list()
+    # for i in range(22792):
+    #     url = 'http://www.nber.org/papers/w%i' % i
+    #     try:
+    #         article_details.append(parse_article_details(url))
+    #     except:
+    #         print(url)
+
+    df = pd.DataFrame(article_details)
     df.to_pickle('nber_article_details.pickle')
