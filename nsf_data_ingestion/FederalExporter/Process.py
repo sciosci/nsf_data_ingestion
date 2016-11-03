@@ -1,24 +1,64 @@
 
 # coding: utf-8
 
-# # Grant Python Script
+# ###### Download
 
 # In[ ]:
 
-### Script: To read grant dataset and extract useful information ####
-### Author: Manas Sikri ###
-### Date: 10/31/2016 ###
-### Syracuse University: School of Information Studies ###
+# function to download the files using wget utility
+# unzip utility to unzip the files
+# -O option in wget to give filename the output
+# -o option in unzip to overwrite the existing file
+# the project csv file download
 
+def download_project_csv(year):
+    url = "https://federalreporter.nih.gov/FileDownload/DownloadFile?fileToDownload=FedRePORTER_PRJ_C_FY" + str(year) +".zip"
+    filename = "FedRePORTER_PRJ_C_FY" + str(year) + ".zip"
+    get_ipython().system('wget -O $filename $url')
+    get_ipython().system('unzip -o $filename')
 
-# # Document File
 
 # In[ ]:
 
-################################## Document File #####################################################
+# function to download the files using wget utility
+# unzip utility to unzip the files
+# -O option in wget to give filename the output
+# -o option in unzip to overwrite the existing file
+# the abstract csv file download
+
+def download_abstract_csv(year):
+    url2 = "https://federalreporter.nih.gov/FileDownload/DownloadFile?fileToDownload=FedRePORTER_PRJABS_C_FY" + str(year) +".zip"
+    filename2 = "FedRePORTER_PRJABS_C_FY" + str(year) + ".zip"
+    get_ipython().system('wget -O $filename2 $url2')
+    get_ipython().system('unzip -o $filename2')
 
 
-# In[5]:
+# In[ ]:
+
+# input the start and end year with help of system argument
+import sys
+start_year = sys.argv[1]
+end_year = sys.argv[2]
+
+
+# In[ ]:
+
+# calling the function to download all the files
+for year in range(start_year,end_year + 1):
+    download_project_csv(year)                  # download the project file as per the year called
+    download_abstract_csv(year)                 # download the abstract file as per the year called
+
+
+# In[ ]:
+
+# put the downloaded files in the hdfs folder
+get_ipython().system('hdfs dfs -put FedRePORTER_PRJ_C_FY*.csv /user/msikri/FederalExporterDownload')
+get_ipython().system('hdfs dfs -put FedRePORTER_PRJABS_C_FY*.csv /user/msikri/FederalExporterDownload')
+
+
+# ###### Process
+
+# In[ ]:
 
 # importing the pandas library
 import pandas as pd 
@@ -27,7 +67,7 @@ import sys
 import os
 
 
-# In[6]:
+# In[ ]:
 
 # assigning the column name for the read_csv function
 colnames = ['SM_Application_ID', 'Project_Terms', 'Project_Title', 'Department', 'Agency', 'IC_Center', 'Project_Number'
@@ -37,7 +77,7 @@ colnames = ['SM_Application_ID', 'Project_Terms', 'Project_Title', 'Department',
            ,'FY_Total_Cost_Sub_Projects'] 
 
 
-# In[7]:
+# In[ ]:
 
 # function to process the document file
 def document(year):
@@ -95,14 +135,7 @@ def document(year):
     document_merge.to_csv(outputfile, index=False)
 
 
-# # Scientist File
-
 # In[ ]:
-
-#################################################### Scientist File ###################################################
-
-
-# In[8]:
 
 # function to process the scientist file
 def scientist(year):
@@ -241,9 +274,7 @@ def scientist(year):
     my_dataframe_scientist_final.to_csv(outputfile, index=False)
 
 
-# # Organization File
-
-# In[9]:
+# In[ ]:
 
 # function to process the organization file
 def organization(year):
@@ -319,32 +350,32 @@ for year in range(start_year,end_year + 1):
 
 # ###### Files to Hadoop Cluster
 
-# In[1]:
+# In[ ]:
 
 import os
 os.environ['SPARK_HOME'] ="/opt/cloudera/parcels/CDH-5.8.0-1.cdh5.8.0.p0.42/lib/spark"
 
 
-# In[2]:
+# In[ ]:
 
 import findspark
 findspark.init()
 
 
-# In[3]:
+# In[ ]:
 
 import pyspark
 conf = pyspark.SparkConf().    setAppName('test_app').    set('spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/home/deacuna/anaconda3/bin/python').    set('spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/home/deacuna/anaconda3/bin/python').    setMaster('yarn-client').    set('executor.memory', '1g').    set('spark.yarn.executor.memoryOverhead', '4098').    set('spark.sql.codegen', 'true').    set('spark.yarn.executor.memory', '500m').    set('yarn.scheduler.minimum-allocation-mb', '500m').    set('spark.dynamicAllocation.maxExecutors', '3').    set('jars', 'hdfs://eggs/graphframes-0.1.0-spark1.6.jar').    set('spark.driver.maxResultSize', '4g')
 
 
-# In[4]:
+# In[ ]:
 
 from pyspark.sql import SQLContext, HiveContext
 sc = pyspark.SparkContext(conf=conf)
 sqlContext = HiveContext(sc)
 
 
-# In[17]:
+# In[ ]:
 
 def document_parquet(year):
     fileread = "Grant_Document_" + str(year) + ".csv"
@@ -370,7 +401,7 @@ def document_parquet(year):
     document_spark_df.write.parquet(basepath)                # writing to a parquet file
 
 
-# In[18]:
+# In[ ]:
 
 def scientist_parquet(year):
     fileread = "Grant_Scientist_" + str(year) + ".csv"
@@ -396,7 +427,7 @@ def scientist_parquet(year):
     scientist_spark_df.write.parquet(fileout)                   # writing to a parquet file
 
 
-# In[19]:
+# In[ ]:
 
 def organization_parquet(year):
     fileread = "Grant_Organization_" + str(year) + ".csv"
@@ -431,17 +462,7 @@ for year in range(start_year,end_year + 1):
     organization_parquet(year)
 
 
-# In[5]:
-
-#document_spark_df_parquet = sqlContext.read.parquet('Grant_Document.parquet')
-
-
-# In[5]:
-
-#document_spark_df_parquet.show()
-
-
-# In[116]:
+# In[ ]:
 
 sc.stop()
 
