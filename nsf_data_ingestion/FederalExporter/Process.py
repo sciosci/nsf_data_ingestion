@@ -1,7 +1,16 @@
 
 # coding: utf-8
 
-# ###### Download
+# #### Download
+
+# In[ ]:
+
+# Script to download and process Grant data
+# This script required 3 arguments to be passed to it
+    # 1. Start Year - Year from which you want the data to be extracted and processes
+    # 2. End Year - Final year till which you want the data to be extracted and processed
+    # 4. Base path - Path in hdfs where the parquet files needs to be pushed and the end of script
+
 
 # In[ ]:
 
@@ -18,7 +27,7 @@ def download_project_csv(year):
     get_ipython().system('unzip -o $filename')
 
 
-# In[ ]:
+# In[2]:
 
 # function to download the files using wget utility
 # unzip utility to unzip the files
@@ -56,7 +65,7 @@ get_ipython().system('hdfs dfs -put FedRePORTER_PRJ_C_FY*.csv /user/msikri/Feder
 get_ipython().system('hdfs dfs -put FedRePORTER_PRJABS_C_FY*.csv /user/msikri/FederalExporterDownload')
 
 
-# ###### Process
+# #### Process
 
 # In[ ]:
 
@@ -348,7 +357,7 @@ for year in range(start_year,end_year + 1):
     organization(year)
 
 
-# ###### Files to Hadoop Cluster
+# #### Connecting to Cluster
 
 # In[ ]:
 
@@ -460,9 +469,4 @@ for year in range(start_year,end_year + 1):
     document_parquet(year)
     scientist_parquet(year)
     organization_parquet(year)
-
-
-# In[ ]:
-
-sc.stop()
 
