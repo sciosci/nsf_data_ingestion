@@ -12,7 +12,7 @@ import glob
 
 #directory_path = '/Users/kartik/Documents/NSF_GRANT_PROJECT/bulk_data/non_comm_use.A-B.xml/3_Biotech'
 #directory_path = '/Users/kartik/Documents/NSF_GRANT_PROJECT/bulk_data/'
-directory_path = '/users/kanagre'
+directory_path = '/users/kanagre/pubmed_data/'
 
 def randomword(length):
    return ''.join(random.choice(string.lowercase) for i in range(length))
