@@ -9,24 +9,19 @@ import string
 import json
 import uuid
 import glob
-
-#directory_path = '/Users/kartik/Documents/NSF_GRANT_PROJECT/bulk_data/non_comm_use.A-B.xml/3_Biotech'
-#directory_path = '/Users/kartik/Documents/NSF_GRANT_PROJECT/bulk_data/'
-directory_path = '/users/kanagre/pubmed_data/'
-
-def randomword(length):
-   return ''.join(random.choice(string.lowercase) for i in range(length))
+import yaml
+from shutil import rmtree
 
 def main():
     print "This is main"
-    #file_name = "sample.xml"
-    #for filename in glob.glob(os.path.join(directory_path, '*.nxml')):
-        #dict_out = pp.parse_pubmed_xml(filename)
-        #xml_json = json.dumps(dict_out, ensure_ascii=False)
-        #document_info = parse_document(dict_out)
-        #parse_scientist(dict_out, document_info)
+    with open('location.yaml', 'r') as file:
+        location = yaml.load(file)
+    directory_path_chunk = location["path"]["chunk_data"]
+    directory_path_csv = location["path"]["csv_data"]
+    rmtree(directory_path_csv)
+    os.makedirs(directory_path_csv)
 
-    for subdir, dirs, files in os.walk(directory_path):
+    for subdir, dirs, files in os.walk(directory_path_chunk):
         for file in files:
             if file.endswith('.nxml'):
                 print(file)
@@ -37,8 +32,8 @@ def main():
                 parse_scientist(dict_out, document_info)
 
 def parse_document(dict_out):
-    document_csv = open("document.csv", 'a')
-    if os.stat("document.csv").st_size == 0:
+    document_csv = open(directory_path_csv+"document.csv", 'a')
+    if os.stat(directory_path_csv+"document.csv").st_size == 0:
         writer = csv.writer(document_csv)
         writer.writerow(["id", "title", "summary", "year", "pubmed_id", "journal", "pubmed_central_id"])
 
@@ -62,19 +57,19 @@ def parse_scientist(dict_out, document_info):
     document_pubmed_central_id = document_info['document_pubmed_central_id']
     affiliation_array = []
 
-    scientist_csv = open("scientist.csv", 'a')
-    organization_csv = open("organization.csv", 'a')
-    scientist_organization_csv = open("scientist_organization.csv", 'a')
+    scientist_csv = open(directory_path_csv+"scientist.csv", 'a')
+    organization_csv = open(directory_path_csv+"organization.csv", 'a')
+    scientist_organization_csv = open(directory_path_csv+"scientist_organization.csv", 'a')
 
-    if os.stat("scientist.csv").st_size == 0:
+    if os.stat(directory_path_csv+"scientist.csv").st_size == 0:
         scientist_writer = csv.writer(scientist_csv)
         scientist_writer.writerow(["id", "first_name", "last_name", "document_id", "document_pubmed_id", "document_pubmed_central_id"])
 
-    if os.stat("organization.csv").st_size == 0:
+    if os.stat(directory_path_csv+"organization.csv").st_size == 0:
         organization_writer = csv.writer(organization_csv)
         organization_writer.writerow(["id", "name"])
 
-    if os.stat("scientist_organization.csv").st_size == 0:
+    if os.stat(directory_path_csv+"scientist_organization.csv").st_size == 0:
         scientist_organization_writer = csv.writer(scientist_organization_csv)
         scientist_organization_writer.writerow(["scientist_id", "organization_id"])
 
@@ -103,10 +98,16 @@ def parse_scientist(dict_out, document_info):
 
         if author[1] is not None:
             first_name = author[1].encode('utf-8').strip()
+        else:
+            first_name = ""
         if author[0] is not None:
             last_name = author[0].encode('utf-8').strip()
+        else:
+            last_name = ""
         if author[2] is not None:
             author_affiliation = author[2]
+        else:
+            author_affiliation = ""
         scientist_writer.writerow([scientist_id, first_name, last_name, document_id, document_pubmed_id, document_pubmed_central_id])
 
         for affiliation in affiliation_array:
