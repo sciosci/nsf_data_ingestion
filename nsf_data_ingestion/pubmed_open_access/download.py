@@ -4,6 +4,7 @@ import os
 import tarfile,sys
 from shutil import copyfile
 from shutil import rmtree
+import yaml
 
 #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.A-B.xml.tar.gz", filename="/users/kanagre/pubmed_data/comm_use.A-B.xml.tar.gz")
 #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.C-H.xml.tar.gz", filename="/users/kanagre/pubmed_data/comm_use.C-H.xml.tar.gz")
@@ -18,12 +19,15 @@ def chunk_data():
     count = 0
     ncount = 0
 
-    directory_path_data = '/Users/kartik/Documents/NSF_GRANT_PROJECT/bulk_data/'
-    directory_path = '/Users/kartik/Documents/NSF_GRANT_PROJECT/processed_data/'
-    #rmtree(directory_path)
-    #sh.rm(sh.glob('/Users/kartik/Documents/NSF_GRANT_PROJECT/processed_data/*'))
+    with open('location.yaml', 'r') as file:
+        location = yaml.load(file)
 
-    new_directory_path = directory_path + '/' + str(count)
+    directory_path_data = location["path"]["input_data"]
+    directory_path_processed = location["path"]["chunk_data"]
+    rmtree(directory_path_processed)
+    os.makedirs(directory_path_processed)
+
+    new_directory_path = directory_path_processed + '/' + str(count)
     if not os.path.exists(new_directory_path):
         os.makedirs(new_directory_path)
     count = count + 1
@@ -32,17 +36,13 @@ def chunk_data():
         for file in files:
             if file.endswith('.nxml'):
                 if count%2000 == 0:
-                    print ("Multiple")
-                    ncount  = ncount + 1
-                    count = count + 1
-                    new_directory_path = directory_path + '/' + str(ncount)
-                    print ncount
+                    ncount  += 1
+                    count += 1
+                    new_directory_path = directory_path_processed + '/' + str(ncount)
                     if not os.path.exists(new_directory_path):
                         os.makedirs(new_directory_path)
                 else:
                     copyfile(subdir + '/' +file, new_directory_path + '/' + file)
-                    print("Not multiple")
-                    count = count + 1
-                    print count
+                    count += 1
 
 chunk_data()
