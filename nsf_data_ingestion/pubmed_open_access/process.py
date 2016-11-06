@@ -12,14 +12,15 @@ import glob
 import yaml
 from shutil import rmtree
 
+with open('location.yaml', 'r') as file:
+    location = yaml.load(file)
+directory_path_chunk = location["path"]["chunk_data"]
+directory_path_csv = location["path"]["csv_data"]
+rmtree(directory_path_csv)
+os.makedirs(directory_path_csv)
+
 def main():
     print "This is main"
-    with open('location.yaml', 'r') as file:
-        location = yaml.load(file)
-    directory_path_chunk = location["path"]["chunk_data"]
-    directory_path_csv = location["path"]["csv_data"]
-    rmtree(directory_path_csv)
-    os.makedirs(directory_path_csv)
 
     for subdir, dirs, files in os.walk(directory_path_chunk):
         for file in files:
