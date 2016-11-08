@@ -71,7 +71,7 @@ def compute_svd(corpus_rdd, m, k, power_iters=2, extra_dims=10):
     """
     # Build one project per partition
     projections_rdd = corpus_rdd. \
-        mapPartitions(lambda x: create_projection(m, k, x, power_iters=power_iters, extra_dims=extra_dims))
+        mapPartitions(lambda x: create_projection(m, k, list(x), power_iters=power_iters, extra_dims=extra_dims))
 
     # Merge projects one by one on the mappers
     return binary_aggregate(projections_rdd, merge)
