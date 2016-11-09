@@ -15,11 +15,16 @@ from shutil import rmtree
 #import pyspark
 #from pyspark.sql import SQLContext, HiveContext
 import pandas as pd
+import sys
 
 with open('location.yaml', 'r') as file:
     location = yaml.load(file)
-directory_path_chunk = location["path"]["chunk_data"]
-directory_path_csv = location["path"]["csv_data"]
+#directory_path_chunk = location["path"]["chunk_data"]
+directory_path_chunk = sys.argv[1:][0]
+#directory_path_csv = location["path"]["csv_data"]
+directory_path_csv = sys.argv[1:][1]
+#directory_path_parquet = location["path"]["csv_data"]
+directory_path_parquet = sys.argv[1:][2]
 rmtree(directory_path_csv)
 os.makedirs(directory_path_csv)
 
