@@ -4,7 +4,6 @@ import os
 import tarfile,sys
 from shutil import copyfile
 from shutil import rmtree
-import yaml
 import sys
 import tarfile
 import shutil
