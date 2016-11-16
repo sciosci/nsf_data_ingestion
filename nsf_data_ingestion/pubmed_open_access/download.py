@@ -46,9 +46,6 @@ def chunk_data(directory_path_data, directory_untar_data):
     count = 0
     ncount = 0
 
-    with open('location.yaml', 'r') as file:
-        location = yaml.load(file)
-
     directory_path_processed = directory_path_data + '/chunk_data'
     if os.path.exists(directory_path_processed):
         rmtree(directory_path_processed)
