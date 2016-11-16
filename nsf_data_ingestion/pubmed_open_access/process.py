@@ -17,31 +17,35 @@ from shutil import rmtree
 import pandas as pd
 import sys
 
-with open('location.yaml', 'r') as file:
-    location = yaml.load(file)
-#directory_path_chunk = location["path"]["chunk_data"]
 directory_path_chunk = sys.argv[1:][0]
-#directory_path_csv = location["path"]["csv_data"]
 directory_path_csv = sys.argv[1:][1]
-#directory_path_parquet = location["path"]["csv_data"]
 directory_path_parquet = sys.argv[1:][2]
-rmtree(directory_path_csv)
+
+if os.path.exists(directory_path_csv):
+    rmtree(directory_path_csv)
 os.makedirs(directory_path_csv)
 
-def main():
-    print "This is main"
+if os.path.exists(directory_path_parquet):
+    rmtree(directory_path_parquet)
+os.makedirs(directory_path_parquet)
 
-    for subdir, dirs, files in os.walk(directory_path_chunk):
-        for file in files:
-            if file.endswith('.nxml'):
-                print(file)
-                filename = os.path.join(subdir, file)
-                dict_out = pp.parse_pubmed_xml(filename)
-                xml_json = json.dumps(dict_out, ensure_ascii=False)
-                document_info = parse_document(dict_out)
-                parse_scientist(dict_out, document_info)
+def main():
+
+    try:
+        for subdir, dirs, files in os.walk(directory_path_chunk):
+            for file in files:
+                if file.endswith('.nxml'):
+                    print(file)
+                    filename = os.path.join(subdir, file)
+                    dict_out = pp.parse_pubmed_xml(filename)
+                    xml_json = json.dumps(dict_out, ensure_ascii=False)
+                    document_info = parse_document(dict_out)
+                    parse_scientist(dict_out, document_info)
+    except Exception:
+        pass
 
 def parse_document(dict_out):
+
     document_csv = open(directory_path_csv+"document.csv", 'a')
     if os.stat(directory_path_csv+"document.csv").st_size == 0:
         writer = csv.writer(document_csv)
@@ -62,6 +66,7 @@ def parse_document(dict_out):
     return document_info
 
 def parse_scientist(dict_out, document_info):
+
     document_id = document_info['document_id']
     document_pubmed_id = document_info['document_pubmed_id']
     document_pubmed_central_id = document_info['document_pubmed_central_id']
@@ -126,66 +131,68 @@ def parse_scientist(dict_out, document_info):
     organization_csv.close()
     scientist_organization_csv.close()
 
-    def process_hadoop():
-        os.environ['SPARK_HOME'] ="/opt/cloudera/parcels/CDH-5.8.0-1.cdh5.8.0.p0.42/lib/spark"
-        findspark.init()
+def process_hadoop():
 
-        conf = pyspark.SparkConf().\
-        setAppName('test_app').\
-        set('spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/home/deacuna/anaconda3/bin/python').\
-        set('spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/home/deacuna/anaconda3/bin/python').\
-        setMaster('yarn-client').\
-        set('executor.memory', '1g').\
-        set('spark.yarn.executor.memoryOverhead', '4098').\
-        set('spark.sql.codegen', 'true').\
-        set('spark.yarn.executor.memory', '500m').\
-        set('yarn.scheduler.minimum-allocation-mb', '500m').\
-        set('spark.dynamicAllocation.maxExecutors', '3').\
-        set('jars', 'hdfs://eggs/graphframes-0.1.0-spark1.6.jar').\
-        set('spark.driver.maxResultSize', '4g')
+    os.environ['SPARK_HOME'] ="/opt/cloudera/parcels/CDH-5.8.0-1.cdh5.8.0.p0.42/lib/spark"
+    findspark.init()
 
-        sc = pyspark.SparkContext(conf=conf)
-        sqlContext = HiveContext(sc)
+    conf = pyspark.SparkConf().\
+    setAppName('test_app').\
+    set('spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/home/deacuna/anaconda3/bin/python').\
+    set('spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/home/deacuna/anaconda3/bin/python').\
+    setMaster('yarn-client').\
+    set('executor.memory', '1g').\
+    set('spark.yarn.executor.memoryOverhead', '4098').\
+    set('spark.sql.codegen', 'true').\
+    set('spark.yarn.executor.memory', '500m').\
+    set('yarn.scheduler.minimum-allocation-mb', '500m').\
+    set('spark.dynamicAllocation.maxExecutors', '3').\
+    set('jars', 'hdfs://eggs/graphframes-0.1.0-spark1.6.jar').\
+    set('spark.driver.maxResultSize', '4g')
 
-        # document_csv
-        document_csv = pd.read_csv("document.csv")
-        document_df = pd.DataFrame(document_csv)
-        document_df.id = document_df.id.astype(str)
-        document_df.title = document_df.title.astype(str)
-        document_df.summary = document_df.summary.astype(str)
-        document_df.year = document_df.year.astype(str)
-        document_df.pubmed_id = document_df.pubmed_id.astype(str)
-        document_df.journal = document_df.journal.astype(str)
-        document_df.pubmed_central_id = document_df.pubmed_central_id.astype(str)
-        document_spark_df = sqlContext.createDataFrame(document_df)
-        document_spark_df.write.parquet('document.parquet')
+    sc = pyspark.SparkContext(conf=conf)
+    sqlContext = HiveContext(sc)
 
-        # scientist_organization_csv
-        scientist_organization_csv = pd.read_csv("scientist_organization.csv")
-        scientist_organization_df = pd.DataFrame(scientist_organization_csv)
-        scientist_organization_df.scientist_id = scientist_organization_df.scientist_id.astype(str)
-        scientist_organization_df.organization_id = scientist_organization_df.organization_id.astype(str)
-        scientist_organization_spark_df = sqlContext.createDataFrame(scientist_organization_df)
-        scientist_organization_spark_df.write.parquet('scientist_organization.parquet')
+    # document_csv
+    document_csv = pd.read_csv(directory_path_csv+"document.csv")
+    document_df = pd.DataFrame(document_csv)
+    document_df.id = document_df.id.astype(str)
+    document_df.title = document_df.title.astype(str)
+    document_df.summary = document_df.summary.astype(str)
+    document_df.year = document_df.year.astype(str)
+    document_df.pubmed_id = document_df.pubmed_id.astype(str)
+    document_df.journal = document_df.journal.astype(str)
+    document_df.pubmed_central_id = document_df.pubmed_central_id.astype(str)
+    document_spark_df = sqlContext.createDataFrame(document_df)
+    document_spark_df.write.parquet('document.parquet')
 
-        # scientist_csv
-        scientist_csv = pd.read_csv("scientist.csv")
-        scientist_df = pd.DataFrame(scientist_csv)
-        scientist_df.id = scientist_df.id.astype(str)
-        scientist_df.first_name = scientist_df.first_name.astype(str)
-        scientist_df.last_name = scientist_df.last_name.astype(str)
-        scientist_df.document_id = scientist_df.document_id.astype(str)
-        scientist_df.document_pubmed_id = scientist_df.document_pubmed_id.astype(str)
-        scientist_df.document_pubmed_central_id = scientist_df.document_pubmed_central_id.astype(str)
-        scientist_spark_df = sqlContext.createDataFrame(scientist_df)
-        scientist_spark_df.write.parquet('scientist.parquet')
+    # scientist_organization_csv
+    scientist_organization_csv = pd.read_csv(directory_path_csv+"scientist_organization.csv")
+    scientist_organization_df = pd.DataFrame(scientist_organization_csv)
+    scientist_organization_df.scientist_id = scientist_organization_df.scientist_id.astype(str)
+    scientist_organization_df.organization_id = scientist_organization_df.organization_id.astype(str)
+    scientist_organization_spark_df = sqlContext.createDataFrame(scientist_organization_df)
+    scientist_organization_spark_df.write.parquet('scientist_organization.parquet')
 
-        # organization_csv
-        organization_csv = pd.read_csv("organization.csv")
-        organization_df = pd.DataFrame(organization_csv)
-        organization_df.id = organization_df.id.astype(str)
-        organization_df.name = organization_df.name.astype(str)
-        organization_spark_df = sqlContext.createDataFrame(organization_df)
-        organization_spark_df.write.parquet('organization.parquet')
+    # scientist_csv
+    scientist_csv = pd.read_csv(directory_path_csv+"scientist.csv")
+    scientist_df = pd.DataFrame(scientist_csv)
+    scientist_df.id = scientist_df.id.astype(str)
+    scientist_df.first_name = scientist_df.first_name.astype(str)
+    scientist_df.last_name = scientist_df.last_name.astype(str)
+    scientist_df.document_id = scientist_df.document_id.astype(str)
+    scientist_df.document_pubmed_id = scientist_df.document_pubmed_id.astype(str)
+    scientist_df.document_pubmed_central_id = scientist_df.document_pubmed_central_id.astype(str)
+    scientist_spark_df = sqlContext.createDataFrame(scientist_df)
+    scientist_spark_df.write.parquet('scientist.parquet')
 
+    # organization_csv
+    organization_csv = pd.read_csv(directory_path_csv+"organization.csv")
+    organization_df = pd.DataFrame(organization_csv)
+    organization_df.id = organization_df.id.astype(str)
+    organization_df.name = organization_df.name.astype(str)
+    organization_spark_df = sqlContext.createDataFrame(organization_df)
+    organization_spark_df.write.parquet('organization.parquet')
+
+# Call the parent Method
 main()
