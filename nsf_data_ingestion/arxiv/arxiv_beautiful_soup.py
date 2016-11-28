@@ -212,55 +212,6 @@ def data_download_token(resumptionToken):
     return df,df2
 
 
-# In[2]:
-
-#df = pd.read_pickle("arxiv_papers_11-11-2016")
-#df2 = pd.read_pickle("arxiv_authors_11-11-2016")
-
-
-# In[58]:
-
-#df, df2 = data_download()
-
-
-# In[205]:
-
-#df, df2 = data_download_token("1439220|458001")
-
-
-# In[175]:
-
-frames = [arxiv_papers,df]
-arxiv_papers = pd.concat(frames)
-frames1 = [arxiv_authors,df2]
-arxiv_authors = pd.concat(frames1)
-
-
-# In[170]:
-
-arxiv_papers.to_pickle('arxiv_papers_11-11-2016')
-
-
-# In[171]:
-
-arxiv_authors.to_pickle('arxiv_authors_11-11-2016')
-
-
-# In[185]:
-
-x = arxiv_papers['title'].unique()
-
-
-# In[6]:
-
-#temp = df[:100000]
-
-
-# In[ ]:
-
-
-
-
 # In[7]:
 
 #changed spark executor memory: 6 to 8...did not work
@@ -288,10 +239,13 @@ def data_download_date():
 
 
     from datetime import date
-    parquetPapers = sqlContext.read.parquet("papers_11_14.parquet") #Read Parquet file 
-    sqlContext.registerDataFrameAsTable(parquetPapers, "table1")
-    result = sqlContext.sql("SELECT MAX(date) AS date FROM table1").collect()
-    x = result[0].date/1000000000
+    try:
+        parquetPapers = sqlContext.read.parquet("papers_11_14.parquet") #Read Parquet file
+        sqlContext.registerDataFrameAsTable(parquetPapers, "table1")
+        result = sqlContext.sql("SELECT MAX(date) AS date FROM table1").collect()
+        x = result[0].date/1000000000
+    except:
+        x = 0.
     latest_date = date.fromtimestamp(x)
     now = datetime.datetime.now()
     now = now.strftime("%Y-%m-%d")
@@ -398,15 +352,6 @@ def data_download_date():
     papers_to_parquet(parquetAuthors)
     
     
-
-
-# In[31]:
-
-parquetPapers = sqlContext.read.parquet("papers_11_14.parquet") #Read Parquet file 
-sqlContext.registerDataFrameAsTable(parquetPapers, "table1")
-result = sqlContext.sql("SELECT COUNT(*) AS date FROM table1").collect()
-result
-
 
 # In[32]:
 
