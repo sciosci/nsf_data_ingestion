@@ -12,7 +12,7 @@ import findspark
 findspark.init()
 
 import pyspark
-conf = pyspark.SparkConf().    setAppName('test_app').    set('spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/home/deacuna/anaconda3/bin/python').    set('spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/home/deacuna/anaconda3/bin/python').    setMaster('yarn-client').    set('executor.memory', '6g').    set('spark.yarn.executor.memoryOverhead', '4098').    set('spark.sql.codegen', 'true').    set('spark.yarn.executor.memory', '500m').    set('yarn.scheduler.minimum-allocation-mb', '500m').    set('spark.dynamicAllocation.maxExecutors', '3').    set('jars', 'hdfs://eggs/graphframes-0.1.0-spark1.6.jar').    set('spark.driver.maxResultSize', '16g')
+conf = pyspark.SparkConf().    setAppName('test_app').    set('spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/home/deacuna/anaconda3/bin/python').    set('spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/home/deacuna/anaconda3/bin/python').    setMaster('yarn-client').    set('executor.memory', '6g').    set('spark.yarn.executor.memoryOverhead', '4098').    set('spark.sql.codegen', 'true').    set('spark.yarn.executor.memory', '500m').    set('yarn.scheduler.minimum-allocation-mb', '500m').    set('spark.dynamicAllocation.maxExecutors', '3').    set('jars', 'hdfs://eggs/graphframes-0.1.0-spark1.6.jar').    set('spark.driver.maxResultSize', '16g').set('spark.port.maxRetries', 60)
     #set('spark.driver.memory', '16g')
     
 from pyspark.sql import SQLContext, HiveContext
