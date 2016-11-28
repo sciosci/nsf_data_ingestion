@@ -7,14 +7,15 @@ from shutil import rmtree
 import sys
 import tarfile
 import shutil
+import zipfile
 
 # Method to download Pubmed Open Access Data
 # The files are stored in directory passed as parameter
 # by command line arguement to variable 'directory_path_data'
 def download_pubmed_data():
     directory_path_data = sys.argv[1:][0]
-    urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.A-B.xml.tar.gz", filename=directory_path_data+"comm_use.A-B.xml.tar.gz")
-    urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.C-H.xml.tar.gz", filename=directory_path_data+"comm_use.C-H.xml.tar.gz")
+    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.A-B.xml.tar.gz", filename=directory_path_data+"comm_use.A-B.xml.tar.gz")
+    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.C-H.xml.tar.gz", filename=directory_path_data+"comm_use.C-H.xml.tar.gz")
     #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.I-N.xml.tar.gz", filename=directory_path_data+"comm_use.I-N.xml.tar.gz")
     #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.O-Z.xml.tar.gz", filename=directory_path_data+"comm_use.O-Z.xml.tar.gz")
     #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/non_comm_use.A-B.xml.tar.gz", filename=directory_path_data+"non_comm_use.A-B.xml.tar.gz")
@@ -46,7 +47,7 @@ def chunk_data(directory_path_data, directory_untar_data):
     count = 0
     ncount = 0
 
-    directory_path_processed = directory_path_data + '/chunk_data'
+    directory_path_processed = directory_path_data + 'chunk_data'
     if os.path.exists(directory_path_processed):
         rmtree(directory_path_processed)
     os.makedirs(directory_path_processed)
@@ -70,5 +71,15 @@ def chunk_data(directory_path_data, directory_untar_data):
                 else:
                     copyfile(subdir + '/' +file, new_directory_path + '/' + file)
                     count += 1
+    zip_data(directory_path_processed)
+
+def zip_data(directory_path_processed):
+    print directory_path_processed
+    for folder in os.listdir(directory_path_processed):
+        zipf = zipfile.ZipFile('{0}.zip'.format(os.path.join(directory_path_processed, folder)), 'w', zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk(os.path.join(directory_path_processed, folder)):
+            for filename in files:
+                zipf.write(os.path.abspath(os.path.join(root, filename)), arcname=filename)
+        zipf.close()
 
 download_pubmed_data()
