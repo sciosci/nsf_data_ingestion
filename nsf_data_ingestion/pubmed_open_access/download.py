@@ -99,9 +99,8 @@ def zip_data(directory_path_data, directory_path_processed):
     put_files_in_hadoop(directory_path_compressed)
 
 def put_files_in_hadoop(directory_path_compressed):
-    #new_directory = "/user/kanagre/compressed_pubmed_data/"
     hadoop_directory = '/user/kanagre/'
-    #call(["hdfs","dfs", "-mkdir", new_directory])
+    call(["hdfs","dfs", "-rm", "-r", "-f",  hadoop_directory+'compressed_pubmed_data'])
     call(["hdfs","dfs", "-put", directory_path_compressed,hadoop_directory])
 
 
