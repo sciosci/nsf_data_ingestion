@@ -8,6 +8,7 @@ import tarfile
 import shutil
 import zipfile
 from ftplib import FTP
+from subprocess import call
 
 # Method to download Pubmed Open Access Data
 # The files are stored in directory passed as parameter
@@ -85,9 +86,14 @@ def zip_data(directory_path_processed):
                 zipf.write(os.path.abspath(os.path.join(root, filename)), arcname=filename)
         zipf.close()
 
+def put_files_in_hadoop(directory_path_processed):
+    call(["hdfs","dfs","-fs","mkdir","/user/kanagre/compressed_pubmed_data/"])
+    call(["hdfs","dfs","-fs","put",directory_path_processed+"*.zip","/user/kanagre/compressed_pubmed_data/"])
+
+
 def get_archive_file_list():
     list = ['comm_use.A-B.xml.tar.gz','comm_use.C-H.xml.tar.gz','comm_use.I-N.xml.tar.gz','comm_use.O-Z.xml.tar.gz','non_comm_use.A-B.xml.tar.gz','non_comm_use.C-H.xml.tar.gz','non_comm_use.I-N.xml.tar.gz','non_comm_use.O-Z.xml.tar.gz']
     #list = ['comm_use.A-B.xml.tar.gz']
     return list
 
-download_pubmed_data()
+#download_pubmed_data()
