@@ -74,10 +74,10 @@ def chunk_data(directory_path_data, directory_untar_data):
                 else:
                     copyfile(subdir + '/' +file, new_directory_path + '/' + file)
                     count += 1
-    zip_data(directory_path_processed)
+    zip_data(directory_path_data, directory_path_processed)
 
 # Method to zip all the folders in the chunk data directory
-def zip_data(directory_path_processed):
+def zip_data(directory_path_data, directory_path_processed):
     print (directory_path_processed)
     for folder in os.listdir(directory_path_processed):
         zipf = zipfile.ZipFile('{0}.zip'.format(os.path.join(directory_path_processed, folder)), 'w', zipfile.ZIP_DEFLATED)
@@ -86,9 +86,23 @@ def zip_data(directory_path_processed):
                 zipf.write(os.path.abspath(os.path.join(root, filename)), arcname=filename)
         zipf.close()
 
-def put_files_in_hadoop(directory_path_processed):
-    call(["hdfs","dfs","-fs","mkdir","/user/kanagre/compressed_pubmed_data/"])
-    call(["hdfs","dfs","-fs","put",directory_path_processed+"*.zip","/user/kanagre/compressed_pubmed_data/"])
+    directory_path_compressed = directory_path_data + 'compressed_pubmed_data'
+    if os.path.exists(directory_path_compressed):
+        rmtree(directory_path_compressed)
+    os.makedirs(directory_path_compressed)
+
+    for subdir, dirs, files in os.walk(directory_path_processed):
+        for file in files:
+            if file.endswith('.zip'):
+                shutil.move(subdir + '/' + file, directory_path_compressed + '/' + file)
+
+    put_files_in_hadoop(directory_path_compressed)
+
+def put_files_in_hadoop(directory_path_compressed):
+    #new_directory = "/user/kanagre/compressed_pubmed_data/"
+    hadoop_directory = '/user/kanagre/'
+    #call(["hdfs","dfs", "-mkdir", new_directory])
+    call(["hdfs","dfs", "-put", directory_path_compressed,hadoop_directory])
 
 
 def get_archive_file_list():
@@ -96,4 +110,4 @@ def get_archive_file_list():
     #list = ['comm_use.A-B.xml.tar.gz']
     return list
 
-#download_pubmed_data()
+download_pubmed_data()
