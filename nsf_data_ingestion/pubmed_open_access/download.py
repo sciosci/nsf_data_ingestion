@@ -1,5 +1,4 @@
 # Script to download the Data from Pubmed Open Access
-import urllib
 import os
 import tarfile,sys
 from shutil import copyfile
@@ -8,20 +7,23 @@ import sys
 import tarfile
 import shutil
 import zipfile
+from ftplib import FTP
 
 # Method to download Pubmed Open Access Data
 # The files are stored in directory passed as parameter
 # by command line arguement to variable 'directory_path_data'
 def download_pubmed_data():
     directory_path_data = sys.argv[1:][0]
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.A-B.xml.tar.gz", filename=directory_path_data+"comm_use.A-B.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.C-H.xml.tar.gz", filename=directory_path_data+"comm_use.C-H.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.I-N.xml.tar.gz", filename=directory_path_data+"comm_use.I-N.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/comm_use.O-Z.xml.tar.gz", filename=directory_path_data+"comm_use.O-Z.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/non_comm_use.A-B.xml.tar.gz", filename=directory_path_data+"non_comm_use.A-B.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/non_comm_use.C-H.xml.tar.gz", filename=directory_path_data+"non_comm_use.C-H.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/non_comm_use.I-N.xml.tar.gz", filename=directory_path_data+"non_comm_use.I-N.xml.tar.gz")
-    #urllib.urlretrieve("ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/non_comm_use.O-Z.xml.tar.gz", filename=directory_path_data+"non_comm_use.O-Z.xml.tar.gz")
+
+    ftp = FTP('ftp.ncbi.nlm.nih.gov')
+    ftp.login(user='', passwd = '')
+    ftp.cwd("/pub/pmc/oa_bulk/")
+    archive_file_list = get_archive_file_list()
+    for i, val in enumerate(archive_file_list):
+        localfile = open(directory_path_data+val, 'wb')
+        ftp.retrbinary("RETR " + val ,localfile.write)
+    ftp.quit()
+    localfile1.close()
     untar_file(directory_path_data)
 
 # untar .tar.gz files from Pubmed Open Acccess
@@ -73,13 +75,19 @@ def chunk_data(directory_path_data, directory_untar_data):
                     count += 1
     zip_data(directory_path_processed)
 
+# Method to zip all the folders in the chunk data directory
 def zip_data(directory_path_processed):
-    print directory_path_processed
+    print (directory_path_processed)
     for folder in os.listdir(directory_path_processed):
         zipf = zipfile.ZipFile('{0}.zip'.format(os.path.join(directory_path_processed, folder)), 'w', zipfile.ZIP_DEFLATED)
         for root, dirs, files in os.walk(os.path.join(directory_path_processed, folder)):
             for filename in files:
                 zipf.write(os.path.abspath(os.path.join(root, filename)), arcname=filename)
         zipf.close()
+
+def get_archive_file_list():
+    list = ['comm_use.A-B.xml.tar.gz','comm_use.C-H.xml.tar.gz','comm_use.I-N.xml.tar.gz','comm_use.O-Z.xml.tar.gz','non_comm_use.A-B.xml.tar.gz','non_comm_use.C-H.xml.tar.gz','non_comm_use.I-N.xml.tar.gz','non_comm_use.O-Z.xml.tar.gz']
+    #list = ['comm_use.A-B.xml.tar.gz']
+    return list
 
 download_pubmed_data()
