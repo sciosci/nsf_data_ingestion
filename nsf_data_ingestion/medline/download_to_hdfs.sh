@@ -15,9 +15,8 @@ then
   then
     # delete folder
     hdfs dfs -rm -r "$uploadpath"
-  else
-    hdfs dfs -mkdir "$uploadpath"
   fi
+  hdfs dfs -mkdir "$uploadpath"  
 
   # puts files there
   hadoop fs -put ./*.xml.gz "$uploadpath"/
