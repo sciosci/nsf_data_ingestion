@@ -199,7 +199,7 @@ def papers_to_parquet(df):
 def authors_to_parquet(df2):
     df2_spark = sqlContext.createDataFrame(df2)
     parquet_path = sys.argv[1]
-    abc = os.path.join(parquet_path, "author_names.parquet")
+    abc = os.path.join(parquet_path, "authors.parquet")
     #df_spark.write.parquet(abc)
     #!hdfs dfs -rm -r /user/skatchhi/authors_11_14.parquet # Delete the existing parquet first:
     call(['hdfs','dfs','-rm','-r','sys.arg[1]','authors.parquet'])
