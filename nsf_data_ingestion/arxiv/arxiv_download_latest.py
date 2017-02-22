@@ -4,13 +4,12 @@ findspark.init()
 import pyspark
 from pyspark.sql import SQLContext, HiveContext
 from pyspark.sql import functions as fn
-
 import time
 import urllib
 import datetime
 import xml.etree.ElementTree as ET
-
 import pandas as pd
+
 pd.set_option('mode.chained_assignment','warn')
 
 
