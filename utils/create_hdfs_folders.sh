@@ -14,24 +14,14 @@
 
 projectpath="$1"
 projects="arxiv medline nber pubmed_oa"
-
-function check_or_create() {
-    # Check or create a folder in hdfs
-    if ! hdfs dfs -test -d "$1"
-    then
-        # delete folder
-        hdfs dfs -mkdir "$1"
-    fi
-}
-
-check_or_create "$projectpath/data"
-check_or_create "$projectpath/data/raw"
-check_or_create "$projectpath/data/processed"
-
+dirs=()
 for p in ${projects}
 do
-    check_or_create "$projectpath/data/raw/$p"
-    check_or_create "$projectpath/data/processed/$p"
+    dirs+=("$projectpath/data/raw/$p")
+    dirs+=("$projectpath/data/processed/$p")
+    dirs+=("$projectpath/data/models/$p")
 done
+# create all dirs in bulk
+hdfs dfs -mkdir -p ${dirs[@]}
 # make all folders writeable
 hdfs dfs -chmod -R a+wx "$projectpath/data"
