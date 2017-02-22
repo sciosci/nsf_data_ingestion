@@ -148,11 +148,11 @@ def data_download_date():
     df_spark = sqlContext.createDataFrame(df)
     #!hdfs dfs -rm -r /user/skatchhi/latest_papers.parquet # Delete the existing parquet first:
     # Cannot delete the file using '!', it is a ipython trick. Use "from subprocess import call" instead
-    #call(['hdfs','dfs','-rm','-r','sys_arg[1]'])# originally sys arg was 0
+    call(['hdfs','dfs','-rm','-r','latest_papers.parquet'])# originally sys arg was 0
     df_spark.write.parquet('latest_papers.parquet')
     df_author_spark = sqlContext.createDataFrame(df2)
     #!hdfs dfs -rm -r /user/skatchhi/latest_authors.parquet # Delete the existing parquet first:
-    #call(['hdfs','dfs','-rm','-r','sys_arg[1]'])
+    call(['hdfs','dfs','-rm','-r','latest_authors.parquet'])
     df_author_spark.write.parquet('latest_authors.parquet')
     
     parquetPapers = sqlContext.read.option("mergeSchema", "true").parquet("papers.parquet")
