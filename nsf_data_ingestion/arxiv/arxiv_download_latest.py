@@ -2,14 +2,13 @@ import sys
 import findspark
 findspark.init()
 import pyspark
-from pyspark.sql import SQLContext, HiveContext
+from pyspark.sql import SQLContext
 from pyspark.sql import functions as fn
 import time
 import urllib
 import datetime
 import xml.etree.ElementTree as ET
 import pandas as pd
-
 pd.set_option('mode.chained_assignment','warn')
 
 
@@ -22,7 +21,6 @@ def data_download_date(paper_path, author_path):
     ARXIV = "{http://arxiv.org/OAI/arXiv/}"
     df = pd.DataFrame(columns=("title","abstract","date","categories", "created", "id", "doi","resumptionToken"))
     df2 = pd.DataFrame()
-
 
     try:
         parquetPapers = sqlContext.read.parquet(paper_path)
