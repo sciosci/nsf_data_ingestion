@@ -164,7 +164,7 @@ def data_download_date():
     parquetPapers = pd.DataFrame(parquetPapers)
     papers_to_parquet(parquetPapers)
     
-    parquetAuthors = sqlContext.read.option("mergeSchema", "true").parquet("author_names.parquet")
+    parquetAuthors = sqlContext.read.option("mergeSchema", "true").parquet("authors.parquet")
     parquetAuthors = parquetAuthors.toPandas()
     df2 = sqlContext.read.option("mergeSchema", "true").parquet("latest_authors.parquet")
     df2 = df2.toPandas()
