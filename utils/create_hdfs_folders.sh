@@ -33,3 +33,5 @@ do
     check_or_create "$projectpath/data/raw/$p"
     check_or_create "$projectpath/data/processed/$p"
 done
+# make all folders writeable
+hdfs dfs -chmod -R a+wx "$projectpath/data"
