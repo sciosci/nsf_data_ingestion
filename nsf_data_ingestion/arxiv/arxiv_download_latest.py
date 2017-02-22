@@ -182,7 +182,7 @@ data_download_date()
 # # Function: Converting to Parquet
 
 
-#sys.argv[1] = "/users/skatchhi/"
+#sys.argv[1] = "users/skatchhi/"
 
 
 def papers_to_parquet(df):
@@ -192,16 +192,16 @@ def papers_to_parquet(df):
     #df_spark.write.parquet(abc)
     #!hdfs dfs -rm -r /user/skatchhi/papers_11_14.parquet # Delete the existing parquet first:
     call(['hdfs','dfs','-rm','-r','sys.arg[1]','papers.parquet'])
-    df_spark.write.parquet('papers.parquet')
+    df_spark.write.parquet(abc)
     #sc.stop()
 
 
 def authors_to_parquet(df2):
     df2_spark = sqlContext.createDataFrame(df2)
     parquet_path = sys.argv[1]
-    abc = os.path.join(parquet_path, "authors.parquet")
+    xyz = os.path.join(parquet_path, "authors.parquet")
     #df_spark.write.parquet(abc)
     #!hdfs dfs -rm -r /user/skatchhi/authors_11_14.parquet # Delete the existing parquet first:
     call(['hdfs','dfs','-rm','-r','sys.arg[1]','authors.parquet'])
-    df2_spark.write.parquet('authors.parquet')
+    df2_spark.write.parquet(xyz)
     #df_spark.write.parquet(parquet_path)
