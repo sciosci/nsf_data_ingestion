@@ -56,43 +56,43 @@ def data_download_date(paper_path, author_path):
         root = ET.fromstring(xml)
         
         for record in root.find(OAI+'ListRecords').findall(OAI+"record"):
-            arxiv_id = record.find(OAI+'header').find(OAI+'identifier')
-            meta = record.find(OAI+'metadata')
-            info = meta.find(ARXIV+"arXiv")
-            date = record.find(OAI+'header').find(OAI+'datestamp').text
-            date = datetime.datetime.strptime(date, "%Y-%m-%d")
-            created = info.find(ARXIV+"created").text
-            created = datetime.datetime.strptime(created, "%Y-%m-%d")
-            categories = info.find(ARXIV+"categories").text
-            
-            doi = info.find(ARXIV+"doi")
-            if doi is not None:
-                doi = doi.text.split()[0]
+            try:
+                arxiv_id = record.find(OAI+'header').find(OAI+'identifier')
+                meta = record.find(OAI+'metadata')
+                info = meta.find(ARXIV+"arXiv")
+                date = record.find(OAI+'header').find(OAI+'datestamp').text
+                date = datetime.datetime.strptime(date, "%Y-%m-%d")
+                created = info.find(ARXIV+"created").text
+                created = datetime.datetime.strptime(created, "%Y-%m-%d")
+                categories = info.find(ARXIV+"categories").text
 
-            
-            for authors in info.findall(ARXIV+"authors"):
-                id = info.find(ARXIV+"id").text[0:]
-                for author in authors.findall(ARXIV+"author"):
-                    author_fname = {'author_fname':author.find(ARXIV+"keyname").text,
-                                     'id': id}
-                    df2 = df2.append(author_fname,ignore_index=True)
-                    
-            
-            
-            token = root.find(OAI+'ListRecords').find(OAI+"resumptionToken")
-            
-            contents = {'title': info.find(ARXIV+"title").text,
-                        'abstract': info.find(ARXIV+"abstract").text.strip(),
-                        'date': date,
-                        'categories': categories.split(),
-                        'created': created,
-                        'id': info.find(ARXIV+"id").text,#arxiv_id.text[4:],
-                        'doi': doi,
-                        'resumptionToken': token.text,
-                        }
-            
-            df = df.append(contents, ignore_index=True)
-            
+                doi = info.find(ARXIV+"doi")
+                if doi is not None:
+                    doi = doi.text.split()[0]
+
+                for authors in info.findall(ARXIV+"authors"):
+                    id = info.find(ARXIV+"id").text[0:]
+                    for author in authors.findall(ARXIV+"author"):
+                        author_fname = {'author_fname':author.find(ARXIV+"keyname").text,
+                                         'id': id}
+                        df2 = df2.append(author_fname,ignore_index=True)
+
+                token = root.find(OAI+'ListRecords').find(OAI+"resumptionToken")
+
+                contents = {'title': info.find(ARXIV+"title").text,
+                            'abstract': info.find(ARXIV+"abstract").text.strip(),
+                            'date': date,
+                            'categories': categories.split(),
+                            'created': created,
+                            'id': info.find(ARXIV+"id").text,#arxiv_id.text[4:],
+                            'doi': doi,
+                            'resumptionToken': token.text,
+                            }
+
+                df = df.append(contents, ignore_index=True)
+            except:
+                print("Error")
+                print(record)
         
         token = root.find(OAI+'ListRecords').find(OAI+"resumptionToken")
         if token is None or token.text is None:
