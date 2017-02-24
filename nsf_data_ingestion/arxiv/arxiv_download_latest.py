@@ -51,6 +51,8 @@ def data_download_date(paper_path, author_path):
             
             else:
                 raise
+        except:
+            break
         
         xml = response.read()
         root = ET.fromstring(xml)
