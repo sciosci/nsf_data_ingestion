@@ -13,7 +13,7 @@
 #      ...
 
 projectpath="$1"
-projects="arxiv medline nber pubmed_oa"
+projects="arxiv medline nber pubmed_oa federal_exporter"
 dirs=()
 for p in ${projects}
 do
