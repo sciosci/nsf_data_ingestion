@@ -293,9 +293,9 @@ if __name__ == '__main__':
         process_scientist_csv(year)
         process_organization_csv(year)
 
-    call(['hdfs', 'dfs' '-put' 'Grant_Document_*.csv', basepath])
-    call(['hdfs', 'dfs' '-put' 'Grant_Scientist_*.csv', basepath])
-    call(['hdfs', 'dfs' '-put' 'Grant_Organization_*.csv', basepath])
+    call(['hdfs', 'dfs', '-put', 'Grant_Document_*.csv', basepath])
+    call(['hdfs', 'dfs', '-put', 'Grant_Scientist_*.csv', basepath])
+    call(['hdfs', 'dfs', '-put', 'Grant_Organization_*.csv', basepath])
 
     for year in range(start_year, end_year + 1):
         document_parquet(spark, basepath, year)
