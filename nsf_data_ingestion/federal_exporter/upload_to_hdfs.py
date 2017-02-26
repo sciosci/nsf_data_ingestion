@@ -5,6 +5,9 @@ from subprocess import call
 findspark.init()
 from pyspark.sql import SparkSession
 
+def delete_files(project_folder):
+    call('hdfs dfs -rm -r %s/data/raw/federal_exporter/*' % project_folder, shell=True)
+
 def upload_to_hdfs(start_year, end_year, project_folder):
     """Upload Federal Exporter files into Hadoop"""
     download_base_url = ("https://federalreporter.nih.gov/"+
@@ -54,6 +57,7 @@ if __name__ == "__main__":
     end_year = int(sys.argv[2])
     project_folder = sys.argv[3]
     spark = SparkSession.builder.getOrCreate()
+    delete_files(project_folder)
     upload_to_hdfs(start_year, end_year, project_folder)
     convert_to_parquet(spark, project_folder)
     
