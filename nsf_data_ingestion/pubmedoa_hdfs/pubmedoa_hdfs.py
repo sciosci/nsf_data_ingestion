@@ -2,6 +2,7 @@ import os
 from glob import glob
 from shutil import copyfile
 import subprocess
+import sys
 
 def list_xml_path(path_dir):
     fullpath = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(path_dir)) for f in fn]
@@ -27,4 +28,4 @@ if __name__ == '__main__':
             copyfile(p, os.path.join(path_chunk, fname))
         subprocess.call(['tar', '-zcf', 'pubmedoa_to_hdfs.tar.gz', '-C', path_chunk, '.'])
         subprocess.call(['hdfs', 'dfs', '-put', 'pubmedoa_to_hdfs.tar.gz',
-                        os.path.join('/nsf_project/data/raw/pubmed_oa', str(i) + '.tar.gz')])
+                        os.path.join(sys.argv[1], 'data/raw/pubmed_oa', str(i) + '.tar.gz')])
