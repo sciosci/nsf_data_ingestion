@@ -17,10 +17,12 @@ def chunks(l, n):
 if __name__ == '__main__':
     path_to_oa = 'pubmedoa' # path to all folder of pubmed oa
     path_chunk = 'pubmedoa_to_hdfs' # path to move chunk file in there
+    subprocess.call(['mkdir', path_chunk])
     paths = list_xml_path(path_to_oa)
     n_chunk = 5000 # size of each chunk
     sample_paths_chunk = chunks(paths, n_chunk) # sample paths
     for i, sample_paths in enumerate(sample_paths_chunk):
+        print("Chunk ", i)
         for p in glob(os.path.join(path_chunk , '*.nxml')):
             os.remove(p)
         for p in sample_paths:
