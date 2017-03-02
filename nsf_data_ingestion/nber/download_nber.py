@@ -1,6 +1,9 @@
 import sys
 import pandas as pd
+import re
+import numpy as np
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 if sys.version_info[0] == 3:
     from urllib.request import urlretrieve, urlopen
 else:
@@ -12,16 +15,17 @@ def parse_new_archive_links(url='http://papers.nber.org/new_archive/'):
     Parse all links from http://papers.nber.org/new_archive/
     """
     page = urlopen(url).read()
-    soup = BeautifulSoup(page, 'html.parser')
+    soup = BeautifulSoup(page)
     soup_sel = soup.find('td', attrs={'id' : 'mainContentTd'})
 
     nber_links = list()
-    for link in soup_sel.findAll('p')[:-4]:
-        if link.a is not None:
-            if not ('/' in link.a['href']):
-                nber_links.append(url + link.a['href'])
+    for link in soup_sel.findAll('a')[0:3]:
+        if re.search("[0-9]{2,4}", link["href"]) is not None:
+            o = urlparse(link['href'])
+            if o.hostname is None:
+                nber_links.append(url + link['href'])
             else:
-                nber_links.append(link.a['href'])
+                nber_links.append(link['href'])
     return nber_links
 
 def parse_paper_links(url='http://papers.nber.org/new_archive/'):
@@ -32,7 +36,8 @@ def parse_paper_links(url='http://papers.nber.org/new_archive/'):
     paper_links = list()
     program_links = dict()
 
-    for nber_link in nber_links[0:10]:
+    for nber_link in nber_links:
+        print("Parsing ", nber_link)
         page_release = urlopen(nber_link).read()
         soup = BeautifulSoup(page_release, 'html.parser')
         soup_sel = soup.find('td', attrs={'id' : 'mainContentTd'})
@@ -119,24 +124,23 @@ def parse_author_details(url):
 
 if __name__ == '__main__':
     paper_links = parse_paper_links(url='http://papers.nber.org/new_archive/')
-    paper_detail_links = pd.unique(list(map(lambda x: x[1], paper_links)))
-
+    paper_links_pd = pd.DataFrame(paper_links, columns=['name', 'url'])
+    paper_detail_links = pd.DataFrame(paper_links, columns=['name', 'url']).url.unique().tolist()
     article_details = list()
-    for p in paper_detail_links:
+    for p in paper_detail_links[0:10]:
         try:
             article_details.append(parse_article_details(p))
         except:
             print(p)
 
-    scrape all NBER papers, hacky way
-    article_details = list()
-    for i in range(22792):
-        url = 'http://www.nber.org/papers/w%i' % i
+    df = pd.DataFrame(article_details)
+
+    df_author = pd.DataFrame(np.vstack([a for a in list(df.authors) if len(a) > 0]), columns=['name', 'url'])
+    df_author.drop_duplicates(subset='url', keep='last', inplace=True)
+    authors = list()
+    for url in list(df_author.url):
         try:
-            article_details.append(parse_article_details(url))
+            authors.append(parse_author_details(url))
         except:
             print(url)
-
-
-    df = pd.DataFrame(article_details)
-    df.to_pickle('nber_article_details.pickle')
+    author_df = pd.DataFrame(authors)
