@@ -15,8 +15,8 @@ def chunks(l, n):
         yield l[i:i + n]
 
 if __name__ == '__main__':
-    path_to_oa = os.path.expanduser(os.path.join('~', 'pubmedoa')) # path to all folder of pubmed oa
-    path_chunk = os.path.expanduser(os.path.join('~', 'pubmedoa_to_hdfs')) # path to move chunk file in there
+    path_to_oa = 'pubmedoa' # path to all folder of pubmed oa
+    path_chunk = 'pubmedoa_to_hdfs' # path to move chunk file in there
     paths = list_xml_path(path_to_oa)
     n_chunk = 5000 # size of each chunk
     sample_paths_chunk = chunks(paths, n_chunk) # sample paths
