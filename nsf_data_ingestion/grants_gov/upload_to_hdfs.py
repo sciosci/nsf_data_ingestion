@@ -28,7 +28,7 @@ def upload_xml_to_hdfs(spark, project_folder):
                 raise Exception("No file found from last 3 days")
 
     # uncompress and put on hdfs
-    assert call("unzip - p " + filename + \
+    assert call("unzip -p " + filename + \
          " | hdfs dfs -put - " + project_folder + "/data/raw/grants_gov/grants.xml",
          shell=True) == 0
 
