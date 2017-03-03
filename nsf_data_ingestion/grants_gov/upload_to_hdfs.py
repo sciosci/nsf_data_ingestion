@@ -26,18 +26,21 @@ def upload_xml_to_hdfs(spark, project_folder):
             count += 1
             if count >= 3:
                 raise Exception("No file found from last 3 days")
-    assert call('unzip ' + filename, shell=True) == 0
-    # put the data into HDFS
-    assert call('hdfs dfs -put *.xml ' + project_folder + '/data/raw/grants_gov', shell=True) == 0
+
+    # uncompress and put on hdfs
+    assert call("unzip - p " + filename + \
+         " | hdfs dfs - put - " + project_folder + "/data/raw/grants_gov/grants.xml",
+         shell=True) == 0
+
     # load XMl and pull out synopsis and
     synopsis = \
         spark.read.format('com.databricks.spark.xml').\
         options(rowTag='OpportunitySynopsisDetail_1_0').\
-        load(project_folder + '/data/raw/grats_gov/*.xml')
+        load(project_folder + '/data/raw/grats_gov/grants.xml')
     forecast = \
         spark.read.format('com.databricks.spark.xml'). \
             options(rowTag='OpportunityForecastDetail_1_0'). \
-            load(project_folder + '/data/raw/grats_gov/*.xml')
+            load(project_folder + '/data/raw/grats_gov/grants.xml')
     synopsis.write.parquet(project_folder + '/data/raw/grants_gov/synopsis.parquet')
     forecast.write.parquet(project_folder + '/data/raw/grants_gov/forecast.parquet')
 
