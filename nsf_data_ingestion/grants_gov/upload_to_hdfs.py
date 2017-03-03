@@ -29,7 +29,7 @@ def upload_xml_to_hdfs(spark, project_folder):
 
     # uncompress and put on hdfs
     assert call("unzip - p " + filename + \
-         " | hdfs dfs - put - " + project_folder + "/data/raw/grants_gov/grants.xml",
+         " | hdfs dfs -put - " + project_folder + "/data/raw/grants_gov/grants.xml",
          shell=True) == 0
 
     # load XMl and pull out synopsis and
