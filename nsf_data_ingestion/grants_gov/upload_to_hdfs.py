@@ -36,11 +36,11 @@ def upload_xml_to_hdfs(spark, project_folder):
     synopsis = \
         spark.read.format('com.databricks.spark.xml').\
         options(rowTag='OpportunitySynopsisDetail_1_0').\
-        load(project_folder + '/data/raw/grats_gov/grants.xml')
+        load(project_folder + '/data/raw/grants_gov/grants.xml')
     forecast = \
         spark.read.format('com.databricks.spark.xml'). \
             options(rowTag='OpportunityForecastDetail_1_0'). \
-            load(project_folder + '/data/raw/grats_gov/grants.xml')
+            load(project_folder + '/data/raw/grants_gov/grants.xml')
     synopsis.write.parquet(project_folder + '/data/raw/grants_gov/synopsis.parquet')
     forecast.write.parquet(project_folder + '/data/raw/grants_gov/forecast.parquet')
 
