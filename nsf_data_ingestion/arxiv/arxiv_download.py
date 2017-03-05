@@ -1,8 +1,4 @@
 
-# coding: utf-8
-
-# In[3]:
-
 import os
 import sys
 import findspark
@@ -18,15 +14,9 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 pd.set_option('mode.chained_assignment','warn')
 
-
-# In[4]:
-
 conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
-
-
-# In[28]:
 
 def data_download(paper_path, author_path,url):
     
@@ -120,13 +110,6 @@ def data_download(paper_path, author_path,url):
     df_author.write.parquet(author_path, mode='append')
 
 
-# In[ ]:
-
-
-
-
-# In[65]:
-
 if __name__ == '__main__':
     paper_path = sys.argv[1]
     author_path = sys.argv[2]
@@ -160,34 +143,4 @@ if __name__ == '__main__':
             data_download(paper_path, author_path, url_data_download_token) # Resume Downloading
     else:
         data_download(paper_path, author_path, url_data_download) # Download everything
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
 
