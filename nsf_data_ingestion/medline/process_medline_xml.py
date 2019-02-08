@@ -1,7 +1,7 @@
 import sys
 import os
 import findspark
-findspark.init()
+findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
 import pyspark
 from pyspark.sql import functions
 from pyspark.sql import SparkSession
@@ -30,13 +30,9 @@ def parse_gzip_medline_str(gzip_str):
             for article_dict in articles]
 
 
-if __name__ == '__main__':
+def spark_session_process(xml_path, parquet_path):
     spark = create_spark_session('PUBMED dump processing')
     import pubmed_parser as pp
-    # path to read xml in hdfs
-    xml_path = sys.argv[1]
-    # path to save parquet in hdfs
-    parquet_path = sys.argv[2]
     print("Reading from {} and writing to {}.".format(xml_path, parquet_path))
 
     medline_gzip_rdd = \
