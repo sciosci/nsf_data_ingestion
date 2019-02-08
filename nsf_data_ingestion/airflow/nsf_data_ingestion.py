@@ -6,7 +6,7 @@ import sys
 from datetime import datetime, timedelta
 import subprocess
 from subprocess import call
-sys.path.append('/home/ananth/airflow/nsf_data_ingestion/nsf_data_ingestion/pubmed_open_access')
+sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/pubmed_open_access')
 from download import download_pubmed_data
 from download import untar_file
 from download import chunk_data
@@ -33,7 +33,7 @@ default_args = {
 dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(1))
 
 def pull():
-    os.chdir('/home/ananth/airflow/nsf_data_ingestion/')
+    os.chdir('/home/ananth/nsf_data_ingestion/')
     output = subprocess.check_output(["git", "pull", "origin", "airflow_model"])
     print(os.curdir)
 
