@@ -24,9 +24,9 @@ directory_path_compressed = directory_path_data + 'compressed_pubmed_data'
 default_args = {
     'owner':'nsf_data_ingestion',
     'depends_on_past':'False',
-    'start_date': datetime(2019,1,15),
+    'start_date': datetime(2019,2,8),
     #'retries':0,
-    'schedule_interva': '*/5 * * * *',
+    'schedule_interva': '@daily',
     'dagrun_timeout': timedelta(seconds=5),
     #'retry_delay':timedelta(minutes=5),
 }

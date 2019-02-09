@@ -23,9 +23,9 @@ parquet_path = '/user/ananth/parquet/'
 default_args = {
     'owner':'medline_data_ingestion',
     'depends_on_past':'False',
-    'start_date': datetime(2019,1,15),
+    'start_date': datetime(2019,2,8),
     #'retries':0,
-    'schedule_interva': '0 */2 * * *',
+    'schedule_interva': '@daily',
     'dagrun_timeout': timedelta(minutes=50),
     'retry_delay':timedelta(minutes=10),
 }
