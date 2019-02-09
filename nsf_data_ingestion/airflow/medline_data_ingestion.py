@@ -6,16 +6,17 @@ import sys
 from datetime import datetime, timedelta
 import subprocess
 from subprocess import call
-sys.path.append('/home/ananth/airflow/nsf_data_ingestion/nsf_data_ingestion/medline')
-from download import download_pub_data
+sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/pubmed_open_access')
+sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/medline')
+from download_medline import download_pub_data
+from download_medline import persist
 from process_medline_xml import spark_session_process
-from download import persist
 
 medleasebaseline = '/nlmdata/.medleasebaseline/gz/'
 medlease = '/nlmdata/.medlease/gz/'
 hdfs_path = '/user/ananth/pub'
 directory_path_data = '/home/ananth/data/'
-xml_path = '/user/ananth/pub/'
+xml_path = '/user/ananth/pub/data'
 parquet_path = '/user/ananth/parquet/'
 
 
@@ -24,15 +25,15 @@ default_args = {
     'depends_on_past':'False',
     'start_date': datetime(2019,1,15),
     #'retries':0,
-    'schedule_interva': '*/5 * * * *',
-    'dagrun_timeout': timedelta(seconds=5),
-    #'retry_delay':timedelta(minutes=5),
+    'schedule_interva': '0 */2 * * *',
+    'dagrun_timeout': timedelta(minutes=50),
+    'retry_delay':timedelta(minutes=10),
 }
 
-dag = DAG('medline_data_ingestion', default_args = default_args, schedule_interval=timedelta(1))
+dag = DAG('medline_data_ingestion', default_args = default_args, schedule_interval='*/1 * * * *')
 
 def pull():
-    os.chdir('/home/ananth/airflow/nsf_data_ingestion/')
+    os.chdir('/home/ananth/nsf_data_ingestion/')
     output = subprocess.check_output(["git", "pull", "origin", "airflow_model"])
     print(os.curdir)
 

@@ -6,12 +6,13 @@ import sys
 from datetime import datetime, timedelta
 import subprocess
 from subprocess import call
+sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/medline')
 sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/pubmed_open_access')
-from download import download_pubmed_data
-from download import untar_file
-from download import chunk_data
-from download import zip_data
-from download import put_files_in_hadoop
+from nsf_download import download_pubmed_data
+from nsf_download import untar_file
+from nsf_download import chunk_data
+from nsf_download import zip_data
+from nsf_download import put_files_in_hadoop
 
 chunk_size = 500
 directory_path_data = '/home/ananth/airflow/data/'
