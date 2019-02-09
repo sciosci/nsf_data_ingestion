@@ -10,14 +10,28 @@ from ftplib import FTP
 from subprocess import call
 import logging
 import urllib
+import calendar
+import time
 
 def download_pub_data(ftp_path):
 
    directory_path_data = '/home/ananth/data/'
+   timestamp_file = 'time_stamp.txt'
    
    if os.path.exists(directory_path_data):
-     rmtree(directory_path_data)
-   os.makedirs(directory_path_data)
+     if os.path.exists(directory_path_data+'time_stamp.txt'):
+       f = open(directory_path_data+"time_stamp.txt", "r")
+       old_time_stamp = int(f.read())
+       current_time_stamp = calendar.timegm(time.gmtime())
+       f.close()
+       if current_time_stamp - old_time_stamp > 300:
+         rmtree(directory_path_data)
+         os.makedirs(directory_path_data)
+     else:
+       rmtree(directory_path_data)
+   else:
+     os.makedirs(directory_path_data)
+   
    ftp = FTP('ftp.nlm.nih.gov')
    ftp.login(user='', passwd = '')
    ftp.cwd(ftp_path)
@@ -30,6 +44,10 @@ def download_pub_data(ftp_path):
      logging.info('Downloading Pleae Wait.................')
    ftp.quit()
    localfile.close()
+   if not os.path.exists(directory_path_data+'time_stamp.txt'):
+     f = open(directory_path_data+"time_stamp.txt", "a")
+     f.write(calendar.timegm(time.gmtime()))
+     f.close()
 
 
 def persist(hdfs_path, directory_path_data):
