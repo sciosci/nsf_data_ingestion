@@ -46,7 +46,8 @@ def download_pub_data(ftp_path):
    localfile.close()
    if not os.path.exists(directory_path_data+'time_stamp.txt'):
      f = open(directory_path_data+"time_stamp.txt", "a")
-     f.write(calendar.timegm(time.gmtime()))
+     cur_time = calendar.timegm(time.gmtime())
+     f.write(str(cur_time))
      f.close()
 
 
