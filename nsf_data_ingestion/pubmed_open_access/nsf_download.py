@@ -10,10 +10,13 @@ import zipfile
 from ftplib import FTP
 from subprocess import call
 import logging
+import subprocess
+from subprocess import call
 
 # Method to download Pubmed Open Access Data
 # The files are stored in directory passed as parameter
 # by command line arguement to variable 'directory_path_data'
+
 def download_pubmed_data(directory_path_data):
 
     ftp = FTP('ftp.ncbi.nlm.nih.gov')
@@ -87,7 +90,7 @@ def chunk_data(directory_path_processed, directory_path_data, chunk_size):
 
 
 
-def zip_data(directory_path_data, directory_path_processed):
+def zip_data(directory_path_data, directory_path_processed, directory_path_compressed):
 
 
     print (directory_path_processed)
@@ -99,8 +102,6 @@ def zip_data(directory_path_data, directory_path_processed):
             for filename in files:
                 zipf.write(os.path.abspath(os.path.join(root, filename)), arcname=filename)
         zipf.close()
-
-    directory_path_compressed = directory_path_data + 'compressed_pubmed_data'
 
     logging.info('Compressing zipped files to folder - %s', directory_path_compressed)
     if os.path.exists(directory_path_compressed):
@@ -115,14 +116,11 @@ def zip_data(directory_path_data, directory_path_processed):
     logging.info('Data is zipped....................')
 
 
-def put_files_in_hadoop(directory_path_compressed):
+def put_files_in_hadoop(directory_path_compressed, hadoop_directory):
 
     logging.info('Persisting data to HDFS')
-
-    hadoop_directory = '/user/kanagre/'
     call(["hdfs","dfs", "-rm", "-r", "-f",  hadoop_directory+'compressed_pubmed_data'])
     call(["hdfs","dfs", "-put", directory_path_compressed,hadoop_directory])
-
     logging.info('Files Persisted to - %s', hadoop_directory)
 
 

@@ -13,10 +13,9 @@ import urllib
 import calendar
 import time
 
-def download_pub_data(ftp_path):
+def download_med_data(ftp_path, directory_path_data, medline_ftp_server, timestamp_file):
 
-   directory_path_data = '/home/ananth/data/'
-   timestamp_file = 'time_stamp.txt'
+   directory_path_data = medline_directory_path_data
    
    if os.path.exists(directory_path_data):
      if os.path.exists(directory_path_data+'time_stamp.txt'):
@@ -32,7 +31,7 @@ def download_pub_data(ftp_path):
    else:
      os.makedirs(directory_path_data)
    
-   ftp = FTP('ftp.nlm.nih.gov')
+   ftp = FTP(medline_ftp_server)
    ftp.login(user='', passwd = '')
    ftp.cwd(ftp_path)
    files = ftp.nlst()
