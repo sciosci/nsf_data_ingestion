@@ -10,7 +10,7 @@ default_args = {
     'start_date': datetime.now(),
 }
 
-dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=1))
+dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=3), catchup=False)
 
 GitClone = PythonOperator(
          task_id = 'GitClone',

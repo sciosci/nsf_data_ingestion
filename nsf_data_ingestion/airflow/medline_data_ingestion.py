@@ -9,7 +9,7 @@ default_args = {
     'start_date': datetime.now(),
 }
 
-dag = DAG('medline_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=1))
+dag = DAG('medline_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=3), catchup=False)
 
 
 GitClone = PythonOperator(
@@ -25,7 +25,7 @@ Download_Medleasebaseline = PythonOperator(
 			'medline_ftp_server': config.medline_ftp_server,
 			'medline_directory_path_data': config.medline_directory_path_data,
 			'timestamp_file': config.timestamp_file},
-         dag = dag)
+        dag = dag)
 
 Download_Medlease =  PythonOperator(
          task_id = 'Download-Medlease',

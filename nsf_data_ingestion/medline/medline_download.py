@@ -13,7 +13,7 @@ import urllib
 import calendar
 import time
 
-def download_med_data(ftp_path, directory_path_data, medline_ftp_server, timestamp_file):
+def download_med_data(ftp_path, medline_directory_path_data, medline_ftp_server, timestamp_file):
 
    directory_path_data = medline_directory_path_data
    
