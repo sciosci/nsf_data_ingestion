@@ -8,6 +8,8 @@ default_args = {
     'owner':'nsf_data_ingestion',
     'depends_on_past':'False',
     'start_date': datetime.now(),
+    'retries': 2,
+    'retry_delay': timedelta(minutes=5)
 }
 
 dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=3), catchup=False)
