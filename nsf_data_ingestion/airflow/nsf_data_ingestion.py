@@ -28,25 +28,39 @@ Download = PythonOperator(
 Untar =  PythonOperator(
          task_id = 'Untar',
          python_callable = untar_file,
-         op_kwargs={'directory_path_data': config.pub_directory_path_data, 'directory_untar_data': config.pub_directory_untar_data},
+         op_kwargs={'directory_path_data': config.pub_directory_path_data,
+                    'directory_untar_data': config.pub_directory_untar_data},
          dag = dag)
     
 Chunk =  PythonOperator(
          task_id = 'Chunking',
          python_callable = chunk_data,
-         op_kwargs={'directory_path_processed': config.pub_directory_path_processed, 'directory_path_data': config.pub_directory_path_data, 'chunk_size': config.pub_chunk_size},
+         op_kwargs={'directory_path_processed': config.pub_directory_path_processed,
+                    'directory_path_data': config.pub_directory_path_data,
+                    'chunk_size': config.pub_chunk_size},
          dag = dag)
     
 Zip =     PythonOperator(
           task_id = 'Zipping',
           python_callable = zip_data,
-          op_kwargs={'directory_path_data': config.pub_directory_path_data, 'directory_path_processed': config.pub_directory_path_processed, 'directory_path_compressed': config.pub_directory_path_compressed},
+          op_kwargs={'directory_path_data': config.pub_directory_path_data,
+                     'directory_path_processed': config.pub_directory_path_processed,
+                     'directory_path_compressed': config.pub_directory_path_compressed},
           dag = dag)
         
 HDFS_Persist =  PythonOperator(
           task_id = 'HDFS-Persist',
           python_callable = put_files_in_hadoop,
-          op_kwargs={'directory_path_compressed': config.pub_directory_path_compressed, 'hadoop_directory': config.pub_hadoop_directory},
+          op_kwargs={'directory_path_compressed': config.pub_directory_path_compressed, 
+                     'hadoop_directory': config.pub_hadoop_directory},
+          dag = dag)
+
+Parquet_Process = PythonOperator(
+          task_id = 'Spark-Parquet-Write',
+          python_callable = generate_pub_parquet_files,
+          op_kwargs={'data_path': config.pub_hadoop_directory + 'compressed_pubmed_data/',
+                        'parquet_path': config.pub_parquet_path,
+                        'libraries_list': config.libraries_list},
           dag = dag)
 
 Download.set_upstream(GitClone)
@@ -54,3 +68,4 @@ Untar.set_upstream(Download)
 Chunk.set_upstream(Untar)
 Zip.set_upstream(Chunk)
 HDFS_Persist.set_upstream(Zip)
+Parquet_Process.set_upstream(HDFS_Persist)
