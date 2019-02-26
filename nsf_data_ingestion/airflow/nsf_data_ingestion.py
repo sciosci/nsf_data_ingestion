@@ -6,7 +6,7 @@ from config import *
 
 default_args = {
     'owner':'nsf_data_ingestion',
-    'depends_on_past':'False',
+    'depends_on_past': False,
     'start_date': datetime.now(),
     'retries': 2,
     'retry_delay': timedelta(minutes=5)

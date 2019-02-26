@@ -18,7 +18,9 @@ from nsf_download import put_files_in_hadoop
 from medline_download import download_med_data
 from medline_download import persist
 
+libraries_list = ['/home/ananth/nsf_data_ingestion/libraries/pubmed_parser_lib.zip', '/home/ananth/nsf_data_ingestion/libraries/unidecode_lib.zip']
 source_path = '/home/ananth/nsf_data_ingestion/'
+spark_path = '/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/'
 
 #PUBMED VARIABLES
 pub_chunk_size = 500
