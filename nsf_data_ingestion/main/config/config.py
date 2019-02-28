@@ -1,26 +1,3 @@
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-import os
-import sys
-from datetime import datetime, timedelta
-import subprocess
-from subprocess import call
-sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/medline')
-sys.path.append('/home/ananth/nsf_data_ingestion/nsf_data_ingestion/pubmed_open_access')
-
-#from nsf_download import download_pubmed_data
-#from nsf_download import untar_file
-#from nsf_download import chunk_data
-#from nsf_download import zip_data
-#from nsf_download import put_files_in_hadoop
-#from nsf_process import generate_pub_parquet_files
-
-#from medline_download import download_med_data
-#from medline_download import persist
-#from medline_process import generate_med_parquet_files
-
-
 libraries_list = ['/home/ananth/nsf_data_ingestion/libraries/pubmed_parser_lib.zip', '/home/ananth/nsf_data_ingestion/libraries/unidecode_lib.zip']
 source_path = '/home/ananth/nsf_data_ingestion/'
 spark_path = '/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/'
