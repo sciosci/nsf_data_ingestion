@@ -1,8 +1,16 @@
 import sys
 import os
-sys.path.append('/home/ananth/airflow/dags/')
-import config
-from config import *
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
+sys.path.append('PycharmProjects/nsf_data_ingestion')
+from nsf_data_ingestion.main.utils.utils_functions import pull
+from nsf_data_ingestion.main.download.dowload_data import download
+from nsf_data_ingestion.main.download.dowload_data import untar
+from nsf_data_ingestion.main.download.dowload_data import chunking
+from nsf_data_ingestion.main.download.dowload_data import zipping
+from nsf_data_ingestion.main.persist_hdfs.persist_data import persist_hdfs
 
 default_args = {
     'owner':'nsf_data_ingestion',
@@ -21,38 +29,22 @@ GitClone = PythonOperator(
         
 Download_Medleasebaseline = PythonOperator(
          task_id = 'Download-Medleasebaseline',
-         python_callable = download_med_data,
-         op_kwargs={'ftp_path': config.medline_medleasebaseline,
-			'medline_ftp_server': config.medline_ftp_server,
-			'medline_directory_path_data': config.medline_directory_path_data,
-			'timestamp_file': config.timestamp_file},
-        dag = dag)
+         python_callable = download,
+         op_kwargs={'data_source_name': 'medline'},
+         dag = dag)
 
 Download_Medlease =  PythonOperator(
          task_id = 'Download-Medlease',
-         python_callable = download_med_data,
-         op_kwargs={'ftp_path': config.medline_medlease,
-			'medline_ftp_server': config.medline_ftp_server, 
-			'medline_directory_path_data': config.medline_directory_path_data,
-			'timestamp_file': config.timestamp_file},
+         python_callable=download,
+         op_kwargs={'data_source_name': 'medline'},
          dag = dag)
         
 HDFS_Persist =  PythonOperator(
           task_id = 'HDFS-Persist',
-          python_callable = persist,
-          op_kwargs={'hdfs_path': config.medline_hdfs_path, 'directory_path_data': config.medline_directory_path_data},
+          python_callable = persist_hdfs,
+          op_kwargs={'data_source_name': 'medline'},
           dag = dag)
-
-Parquet_Process = PythonOperator(
-          task_id = 'Spark-Parquet-Write',
-          python_callable = generate_med_parquet_files,
-          op_kwargs={'data_path': config.medline_hdfs_path + 'medline_data/',
-                        'parquet_path': config.medline_parquet_path,
-                        'libraries_list': config.libraries_list},
-          dag = dag)
-
 
 Download_Medleasebaseline.set_upstream(GitClone)
 Download_Medlease.set_upstream(Download_Medleasebaseline)
 HDFS_Persist.set_upstream(Download_Medlease)
-Parquet_Process.set_upstream(HDFS_Persist)
