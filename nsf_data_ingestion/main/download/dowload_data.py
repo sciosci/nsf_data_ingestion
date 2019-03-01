@@ -207,6 +207,3 @@ def chunking(data_source_name):
 
 def zipping(data_source_name):
     zip_data(data_source_params.mapping.get(data_source_name))
-
-
-download('pubmed')
