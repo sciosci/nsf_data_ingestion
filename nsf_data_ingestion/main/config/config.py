@@ -29,7 +29,7 @@ fed_FedRePORTER_PRJ_url = 'https://federalreporter.nih.gov/FileDownload/Download
 fed_FedRePORTER_PRJABS_url = 'https://federalreporter.nih.gov/FileDownload/DownloadFile?fileToDownload=FedRePORTER_PRJABS_X_FY'
 federal_directory_path_data = '/home/ananth/airflow/federal_data/'
 federal_hdfs_path = '/user/ananth/federal/'
-medline_xml_path = '/user/ananth/federal/federal_data'
+federal_xml_path = '/user/ananth/federal/federal_data'
 federal_parquet_path = '/user/ananth/federal/parquet/'
 
 

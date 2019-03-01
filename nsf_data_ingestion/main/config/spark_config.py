@@ -24,3 +24,6 @@ exec_instance='3'
 exec_mem='30g'
 exec_cores='5'
 exec_max_cores='5'
+
+#HDFS Parameters
+minPartitions = 10000
