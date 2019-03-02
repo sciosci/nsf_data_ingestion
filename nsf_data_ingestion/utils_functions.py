@@ -1,7 +1,6 @@
 import os
-import shutil
 import subprocess
-from nsf_data_ingestion.main.config.config import source_path
+from nsf_data_ingestion.nsf_config import source_path
 
 
 def get_archive_file_list():

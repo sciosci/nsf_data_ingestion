@@ -21,7 +21,8 @@ medline_ftp_server = 'ftp.nlm.nih.gov'
 medline_medleasebaseline = '/nlmdata/.medleasebaseline/gz/'
 medline_medlease = '/nlmdata/.medlease/gz/'
 medline_hdfs_path = '/user/ananth/medline/'
-medline_xml_path = '/user/ananth/medline/medline_data'
+#medline_xml_path = '/user/ananth/medline/medline_data'
+medline_xml_path = '/ananth/'
 medline_parquet_path = '/user/ananth/medline/parquet/'
 
 #FEDERAL REPORTER VARIABLES
@@ -34,9 +35,9 @@ federal_parquet_path = '/user/ananth/federal/parquet/'
 
 
 #HDFS Parameters
-hdfs_read.BINARY = 'binary'
-hdfs_read.WHOLEFILES = 'wholefiles'
-hdfs_read.FILE = 'file'
+hdfs_read_BINARY = 'binary'
+hdfs_read_WHOLEFILES = 'wholefiles'
+hdfs_read_FILE = 'file'
 
 
 #DATA SOURCE NAMES

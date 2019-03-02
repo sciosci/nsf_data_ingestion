@@ -1,5 +1,6 @@
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/usr/local/spark')
+#findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
 import pyspark
 from pyspark.sql import functions
 from pyspark.sql import SparkSession
@@ -20,10 +21,10 @@ import logging
 
 spark_home='/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/'
 appname='nsf_data_engine'
-exec_instance='3'
-exec_mem='30g'
-exec_cores='5'
-exec_max_cores='5'
+exec_instance='1'
+exec_mem='8g'
+exec_cores='2'
+exec_max_cores='2'
 
 #HDFS Parameters
 minPartitions = 10000

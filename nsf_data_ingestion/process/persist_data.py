@@ -1,6 +1,7 @@
 from subprocess import call
 import logging
-from nsf_data_ingestion.main.objects import data_source_params
+from nsf_data_ingestion import data_source_params
+
 
 def persist(param_list):
 

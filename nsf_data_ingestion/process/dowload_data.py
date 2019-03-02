@@ -9,8 +9,8 @@ import logging
 import calendar
 import time
 logging.getLogger().setLevel(logging.INFO)
-from nsf_data_ingestion.main.objects import data_source_params
-from nsf_data_ingestion.main.utils.utils_functions import get_archive_file_list
+from nsf_data_ingestion import data_source_params
+from nsf_data_ingestion.utils_functions import get_archive_file_list
 
 
 
