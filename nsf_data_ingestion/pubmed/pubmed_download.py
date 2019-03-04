@@ -1,3 +1,10 @@
+import sys
+sys.path.append('/home/ananth/nsf_data_ingestion/')
+from nsf_data_ingestion.config import nsf_config
+from nsf_data_ingestion.objects import data_source_params
+from nsf_data_ingestion.utils.utils_functions import get_archive_file_list
+from nsf_data_ingestion.utils.utils_functions import get_last_load
+
 import os
 from shutil import copyfile
 from shutil import rmtree
@@ -9,91 +16,41 @@ import logging
 import calendar
 import time
 logging.getLogger().setLevel(logging.INFO)
-from nsf_data_ingestion import data_source_params
-from nsf_data_ingestion.utils_functions import get_archive_file_list
 
-
-
-
-#  MEDLINE DOWNLOAD FUNCTIONS
-#####################################################################################################################################################################
-def download_med_data(param_list):
-
-    medline_ftp_server = param_list.get('ftp_server')
-    directory_path_data = param_list.get('directory_path')
-    ftp_path = param_list.get('medleasebaseline_url')
+def download_pubmed_data(param_list):
+    directory_path_data = param_list.get('download_path')
     timestamp_file = param_list.get('timestamp_file')
+    
+    last_load = get_last_load(directory_path_data, timestamp_file)
+    
+    if last_load >= 86400:
+        logging.info('Old Data. Downloading Updated Data')
+        if os.path.exists(directory_path_data):
+            rmtree(directory_path_data)
 
-    if os.path.exists(directory_path_data):
-        if os.path.exists(directory_path_data + timestamp_file):
-            f = open(directory_path_data + timestamp_file, "r")
-            old_time_stamp = int(f.read())
-            current_time_stamp = calendar.timegm(time.gmtime())
-            f.close()
-            if current_time_stamp - old_time_stamp > 300:
-                rmtree(directory_path_data)
-                os.makedirs(directory_path_data)
-            else:
-                ftp_path = param_list.get('medlease_url')
-    else:
         os.makedirs(directory_path_data)
-
-    ftp = FTP(medline_ftp_server)
-    ftp.login(user='', passwd='')
-    ftp.cwd(ftp_path)
-    files = ftp.nlst()
-
-    for file in files:
-        if file.endswith('.xml.gz'):
-            localfile = open(directory_path_data + file, 'wb')
-            ftp.retrbinary("RETR " + file, localfile.write)
+        ftp = FTP('ftp.ncbi.nlm.nih.gov')
+        ftp.login(user='', passwd = '')
+        ftp.cwd("/pub/pmc/oa_bulk/")
+        archive_file_list = get_archive_file_list()
+        print(archive_file_list)
+        for i, val in enumerate(archive_file_list):
+            localfile = open(directory_path_data+val, 'wb')
+            ftp.retrbinary("RETR " + val ,localfile.write)
             logging.info('Downloading Pleae Wait.................')
-    ftp.quit()
-    localfile.close()
-    if not os.path.exists(directory_path_data + 'time_stamp.txt'):
+        ftp.quit()
+        localfile.close()
+        logging.info('Download Complete..........................')
+        
+        logging.info('Updating TimeStamp........')
         f = open(directory_path_data + "time_stamp.txt", "a")
         cur_time = calendar.timegm(time.gmtime())
         f.write(str(cur_time))
         f.close()
 
-
-
-#  FEDERAL DOWNLOAD FUNCTIONS
-#####################################################################################################################################################################
-def download_fed_data(param_list):
-    logging.info('Downloading Fed Data')
-    for i in range(2004, 2017):
-        os.system(
-            'wget ' + param_list.get('FedRePORTER_PRJ_url') +str(i)+ '.zip -nv -P ' + param_list.get('directory_path'))
-        os.system(
-            'wget ' + param_list.get('FedRePORTER_PRJABS_url') +str(i)+ '.zip -nv -P ' + param_list.get('directory_path'))
-
-
-
-
-#  PUBMED DOWNLOAD FUNCTIONS
-#####################################################################################################################################################################
-def download_pubmed_data(param_list):
-
-    directory_path_data = param_list.get('download_path')
-    if os.path.exists(directory_path_data):
-        rmtree(directory_path_data)
-
-    os.makedirs(directory_path_data)
-    ftp = FTP('ftp.ncbi.nlm.nih.gov')
-    ftp.login(user='', passwd = '')
-    ftp.cwd("/pub/pmc/oa_bulk/")
-    archive_file_list = get_archive_file_list()
-    print(archive_file_list)
-    for i, val in enumerate(archive_file_list):
-        localfile = open(directory_path_data+val, 'wb')
-        ftp.retrbinary("RETR " + val ,localfile.write)
-        logging.info('Downloading Pleae Wait.................')
-    ftp.quit()
-    localfile.close()
-    logging.info('Download Complete..........................')
-
-
+    else:
+        logging.info('Data Intact......!!!!!')
+    
 # untar .tar.gz files from Pubmed Open Acccess
 def untar_file(param_list):
 
@@ -183,27 +140,31 @@ def zip_data(param_list):
     logging.info('Data is zipped....................')
 
 
+        
+def persist(param_list):
+
+    hdfs_path = param_list.get('hdfs_path')
+    directory_path = param_list.get('directory_path')
+    logging.info('Persisting data to HDFS')
+    if not call(["hdfs", "dfs", "-test", "-d", hdfs_path]):
+        call(["hdfs", "dfs", "-rm", "-r", "-f", hdfs_path])
+
+    call(["hdfs", "dfs", "-mkdir", hdfs_path])
+    call(["hdfs", "dfs", "-put", directory_path, hdfs_path])
+    logging.info('Files Persisted to - %s', hdfs_path)
 
 
-
-
-#MAIN CALL
-#####################################################################################################################################################################
 def download(data_source_name):
-    switch = {'federal_reporter': download_fed_data,
-              'medline': download_med_data,
-              'pubmed': download_pubmed_data}
-
-    switch[data_source_name](data_source_params.mapping.get(data_source_name))
-
-
+    download_pubmed_data(data_source_params.mapping.get(data_source_name))
+    
 def untar(data_source_name):
     untar_file(data_source_params.mapping.get(data_source_name))
-
 
 def chunking(data_source_name):
     chunk_data(data_source_params.mapping.get(data_source_name))
 
-
 def zipping(data_source_name):
     zip_data(data_source_params.mapping.get(data_source_name))
+                 
+def persist_hdfs(data_source_name):
+    persist(data_source_params.mapping.get(data_source_name))

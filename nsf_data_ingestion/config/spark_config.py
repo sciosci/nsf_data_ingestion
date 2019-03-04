@@ -1,6 +1,8 @@
 import findspark
-findspark.init('/usr/local/spark')
-#findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+import sys
+sys.path.append('/home/ananth/nsf_data_ingestion/')
+from nsf_data_ingestion.objects import data_source_params
 import pyspark
 from pyspark.sql import functions
 from pyspark.sql import SparkSession
