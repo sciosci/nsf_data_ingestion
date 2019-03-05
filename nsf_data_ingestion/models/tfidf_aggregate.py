@@ -21,7 +21,8 @@ stop_words = requests.get(nsf_config.stop_words_url).text.split()
 from functools import reduce
 
 def create_spark_session(name):
-    spark = SparkSession.builder.config("spark.executor.memory", '30g')\
+    spark = SparkSession.builder.config("spark.executor.instances", '3')\
+    .config("spark.executor.memory", '30g')\
     .config('spark.executor.cores', '7')\
     .config('spark.cores.max', '7')\
     .appName('tfdf')\
@@ -208,3 +209,5 @@ def main(data_source):
     tfidf_df = tfidf_transformer.transform(all_data_df). \
             select(all_data_df.columns + ['tfidf'])
     tfidf_df.write.parquet(tfidf_path, mode='overwrite')
+    spark.stop()
+    

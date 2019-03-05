@@ -3,6 +3,29 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 import os
 import sys
+sys.path.append('/home/ananth/nsf_data_ingestion/')
+from nsf_data_ingestion.pubmed import pubmed_download
+from nsf_data_ingestion.pubmed.pubmed_download import *
+from nsf_data_ingestion.federal_reporter import federal_reporter_download
+from nsf_data_ingestion.federal_reporter.federal_reporter_download import *
+from nsf_data_ingestion.medline import medline_download
+from nsf_data_ingestion.medline.medline_download import *
+from nsf_data_ingestion.medline import medline_parquet_write
+from nsf_data_ingestion.federal_reporter import federal_parquet_write
+from nsf_data_ingestion.models import tfidf_aggregate
+#from nsf_data_ingestion.medline import medline_parquet_write
+#from nsf_data_ingestion.federal_reporter import federal_parquet_write
+#from nsf_data_ingestion.medline import medline_parquet_write
+#from nsf_data_ingestion.models import tfidf_aggregate
+from nsf_data_ingestion.arxiv import arxiv_download
+from nsf_data_ingestion.arxiv.arxiv_download import *
+
+from nsf_data_ingestion.objects import data_source_params
+from nsf_data_ingestion.utils import utils_functions
+
+from nsf_data_ingestion.config.spark_config import *
+
+#from nsf_data_ingestion.models import tfidf_aggregate
 from datetime import datetime, timedelta
 import subprocess
 from subprocess import call
@@ -10,60 +33,81 @@ from subprocess import call
 default_args = {
     'owner':'nsf_data_ingestion',
     'depends_on_past':'False',
+    'retry_delay': timedelta(minutes=10),
+    'retries': 3,
     'start_date': datetime.now(),
 }
 
-dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(hours=3), catchup=False)
+dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days=3), catchup=False)
 
-GitClone = BashOperator(
+GitClone = PythonOperator(
     task_id='GitClone',
-    bash_command='date',
+    python_callable = utils_functions.pull,
+    retries=3,
     dag=dag,
 )
 
-TFDIF_Model = BashOperator(
+TFDIF_Model = PythonOperator(
     task_id='TFDIF_Model',
-    bash_command='date',
+    python_callable = tfidf_aggregate.main,
+    op_kwargs={'data_source': nsf_config.tfdif},
+    retries=3,
     dag=dag,
 )
 
 Medline = BashOperator(
     task_id='Medline',
     bash_command='date',
+    retries=3,
     dag=dag,
 )
 
 Pubmed = BashOperator(
     task_id='Pubmed',
     bash_command='date',
+    retries=3,
     dag=dag,
 )
 
 Federal_Reporter = BashOperator(
     task_id='Federal_Reporter',
     bash_command='date',
+    retries=3,
+    dag=dag,
+)
+
+Arxiv = BashOperator(
+    task_id='Arxiv',
+    bash_command='date',
+    retries=3,
     dag=dag,
 )
 
 Medline.set_upstream(GitClone)
 Pubmed.set_upstream(GitClone)
 Federal_Reporter.set_upstream(GitClone)
+Arxiv.set_upstream(GitClone)
 
-Medline_Download = BashOperator(
+Medline_Download = PythonOperator(
     task_id='Medline_Download',
-    bash_command='sleep 5',
+    python_callable = medline_download.download,
+    op_kwargs={'data_source_name': nsf_config.medline},
+    retries=3,
     dag=dag,
 )
 
-Medline_Persist = BashOperator(
+Medline_Persist = PythonOperator(
     task_id='Medline_Persist',
-    bash_command='date',
+    python_callable = medline_download.persist_hdfs,
+    op_kwargs={'data_source_name': nsf_config.medline},
+    retries=3,
     dag=dag,
 )
 
 Medline_Parquet = BashOperator(
     task_id='Medline_Parquet',
-    bash_command='date',
+    bash_command = 'python /home/ananth/nsf_data_ingestion/nsf_data_ingestion/medline/medline_parquet_write.py',
+    retries=3,
     dag=dag,
 )
 
@@ -71,39 +115,50 @@ Medline_Download.set_upstream(Medline)
 Medline_Persist.set_upstream(Medline_Download)
 Medline_Parquet.set_upstream(Medline_Persist)
 
-Pubmed_Download = BashOperator(
+Pubmed_Download = PythonOperator(
     task_id='Pubmed_Download',
-    bash_command='sleep 5',
+    python_callable = pubmed_download.download,
+    op_kwargs={'data_source_name': nsf_config.pubmed},
+    retries=3,
     dag=dag,
 )
 
-Pubmed_Untar = BashOperator(
+Pubmed_Untar = PythonOperator(
     task_id='Pubmed_Untar',
-    bash_command='date',
+    python_callable = pubmed_download.untar,
+    op_kwargs={'data_source_name': nsf_config.pubmed},
+    retries=3,
     dag=dag,
 )
 
-Pubmed_Chunk = BashOperator(
+Pubmed_Chunk = PythonOperator(
     task_id='Pubmed_Chunk',
-    bash_command='date',
+    python_callable = pubmed_download.chunking,
+    op_kwargs={'data_source_name': nsf_config.pubmed},
+    retries=3,
     dag=dag,
 )
 
-Pubmed_Zip = BashOperator(
+Pubmed_Zip = PythonOperator(
     task_id='Pubmed_Zip',
-    bash_command='sleep 5',
+    python_callable = pubmed_download.zipping,
+    op_kwargs={'data_source_name': nsf_config.pubmed},
+    retries=3,
     dag=dag,
 )
 
-Pubmed_Persist = BashOperator(
+Pubmed_Persist = PythonOperator(
     task_id='Pubmed_Persist',
-    bash_command='date',
+    python_callable = pubmed_download.persist_hdfs,
+    op_kwargs={'data_source_name': nsf_config.pubmed},
+    retries=3,
     dag=dag,
 )
 
 Pubmed_Parquet = BashOperator(
     task_id='Pubmed_Parquet',
     bash_command='date',
+    retries=3,
     dag=dag,
 )
 
@@ -114,21 +169,27 @@ Pubmed_Zip.set_upstream(Pubmed_Chunk)
 Pubmed_Persist.set_upstream(Pubmed_Zip)
 Pubmed_Parquet.set_upstream(Pubmed_Persist)
 
-Federal_Download = BashOperator(
+Federal_Download = PythonOperator(
     task_id='Federal_Download',
-    bash_command='sleep 5',
+    python_callable = federal_reporter_download.download,
+    op_kwargs={'data_source_name': nsf_config.federal_reporter},
+    retries=3,
     dag=dag,
 )
 
-Federal_Persist = BashOperator(
+Federal_Persist = PythonOperator(
     task_id='Federal_Persist',
-    bash_command='date',
+    python_callable = federal_reporter_download.persist_hdfs,
+    op_kwargs={'data_source_name': nsf_config.federal_reporter},
+    retries=3,
     dag=dag,
 )
 
-Federal_Parquet = BashOperator(
+Federal_Parquet = PythonOperator(
     task_id='Federal_Parquet',
-    bash_command='date',
+    python_callable = federal_parquet_write.main,
+    op_kwargs={'data_source_name': nsf_config.federal_reporter},
+    retries=3,
     dag=dag,
 )
 
@@ -136,6 +197,33 @@ Federal_Download.set_upstream(Federal_Reporter)
 Federal_Persist.set_upstream(Federal_Download)
 Federal_Parquet.set_upstream(Federal_Persist)
 
+Arxiv_Download = PythonOperator(
+    task_id='Arxiv_Download',
+    python_callable = arxiv_download.download,
+    op_kwargs={'data_source_name': nsf_config.arxiv},
+    retries=3,
+    dag=dag,
+)
+
+Arxiv_Persist = PythonOperator(
+    task_id='Arxiv_Persist',
+    python_callable = arxiv_download.persist_hdfs,
+    op_kwargs={'data_source_name': nsf_config.arxiv},
+    retries=3,
+    dag=dag,
+)
+
+Arxiv_Parquet = BashOperator(
+    task_id='Arxiv_Parquet',
+    bash_command='date',
+    retries=3,
+    dag=dag,
+)
+
+Arxiv_Download.set_upstream(Arxiv)
+Arxiv_Persist.set_upstream(Arxiv_Download)
+Arxiv_Parquet.set_upstream(Arxiv_Persist)
+
 TFDIF_Model.set_upstream(Medline_Parquet)
-TFDIF_Model.set_upstream(Pubmed_Parquet)
 TFDIF_Model.set_upstream(Federal_Parquet)
+TFDIF_Model.set_upstream(Arxiv_Parquet)

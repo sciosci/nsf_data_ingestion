@@ -13,6 +13,7 @@ from ftplib import FTP
 import logging
 import calendar
 import time
+from subprocess import call
 logging.getLogger().setLevel(logging.INFO)
 
 def download_med_data(param_list):

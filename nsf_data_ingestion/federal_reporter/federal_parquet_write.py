@@ -1,3 +1,5 @@
+import findspark
+findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
 import sys
 import zipfile
 import io
@@ -30,7 +32,8 @@ def convert_to_parquet(spark, project_folder):
 def main(data_source_name):    
     project_folder = '/user/ananth/federal/'
     logging.info('Creating Spark Session....')
-    spark = SparkSession.builder.config('spark.jars.packages', 'com.databricks:spark-xml_2.11:0.4.1').getOrCreate()
+    spark = SparkSession.builder.config('spark.jars.packages', 'com.databricks:spark-xml_2.11:0.4.1').config("spark.executor.instances", '3').config("spark.executor.memory", '30g').config('spark.executor.cores', '5').config('spark.cores.max', '5').appName(data_source_name).getOrCreate()
     logging.info('Writing to Parquet.....')
     convert_to_parquet(spark, project_folder)
     logging.info('Parquet Write Complete.....')
+    spark.stop()

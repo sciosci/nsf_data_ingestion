@@ -42,11 +42,12 @@ pubmed_param =           {'data_source_name' : nsf_config.pubmed,
 arxiv_param =            {'data_source_name' : nsf_config.arxiv,
                           'hdfs_path' : nsf_config.arxiv_hadoop_directory,
                           'directory_path': nsf_config.arxiv_directory_path_data,
-                          'xml_path': nsf_config.pub_xml_path,
-                          'parquet_path': nsf_config.pub_parquet_path,
+                          'xml_path': nsf_config.arxiv_xml_path,
+                          'parquet_path': nsf_config.arxiv_parquet_path,
                           'hdfs_read_type': nsf_config.hdfs_read_BINARY,
                           'arxiv_raw_url': nsf_config.arxiv_raw_url,
-                          'arxiv_resume_url': nsf_config.arxiv_resume_url
+                          'arxiv_resume_url': nsf_config.arxiv_resume_url,
+                          'timestamp_file': nsf_config.timestamp_file
                          }
 
 

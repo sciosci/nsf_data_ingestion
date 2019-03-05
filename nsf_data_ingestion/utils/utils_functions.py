@@ -24,9 +24,10 @@ def get_archive_file_list():
 
 
 def pull():
-    os.chdir(source_path)
-    output = subprocess.check_output(["git", "pull", "origin", "airflow_model"])
-print(os.curdir)
+    os.chdir(nsf_config.source_path)
+    output = subprocess.check_output(["git", "pull", "origin", "branch/test"])
+    logging.info('Checked Out Branch.....')
+    print(os.curdir)
 
 
 def get_last_load(directory_path_data, timestamp_file):

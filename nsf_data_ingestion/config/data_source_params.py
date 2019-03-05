@@ -34,8 +34,11 @@ pubmed_param =           {'data_source_name' : pubmed,
                           'hdfs_read_type': hdfs_read_BINARY}
 
 arxiv_param =            {'data_source_name' : arxiv,
+                          'arxiv_raw_url' : arxiv_raw_url,
+                          'arxiv_resume_url' : arxiv_resume_url,
                           'hdfs_path' : arxiv_hadoop_directory,
-                          'download_path': arxiv_directory_path_data}
+                          'download_path': arxiv_directory_path_data,
+                          'timestamp_file': timestamp_file}
 
 mapping =                {'federal_reporter': federal_reporter_param,
                            'medline': medline_param,

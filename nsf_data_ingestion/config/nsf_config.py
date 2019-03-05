@@ -42,6 +42,8 @@ arxiv_raw_url = 'http://export.arxiv.org/oai2?verb=ListRecords&metadataPrefix=oa
 arxiv_resume_url = 'http://export.arxiv.org/oai2?verb=ListRecords&resumptionToken=%s'
 arxiv_directory_path_data = '/home/ananth/airflow/arxiv_data/'
 arxiv_hadoop_directory = '/user/ananth/arxiv_data/'
+arxiv_xml_path = '/user/ananth/arxiv_data/arxiv_data/'
+arxiv_parquet_path = '/user/ananth/arxiv_data/parquet/'
 
 
 #TFDIF VARIABLES
@@ -59,3 +61,4 @@ medline = 'medline'
 pubmed = 'pubmed'
 federal_reporter = 'federal_reporter'
 arxiv = 'arxiv'
+tfdif = 'tfdif'

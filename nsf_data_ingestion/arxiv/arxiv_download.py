@@ -21,7 +21,7 @@ def get_raw_data(param_list):
     raw_url = param_list.get('arxiv_raw_url')
     timestamp_file = param_list.get('timestamp_file')
     
-    last_load = get_last_load(directory_path_data, timestamp_file)
+    last_load = get_last_load(path, timestamp_file)
     
     if last_load >= 86400:
     
@@ -91,10 +91,11 @@ def persist(param_list):
 
     hdfs_path = param_list.get('hdfs_path')
     directory_path = param_list.get('directory_path')
-    logging.info('Persisting data to HDFS')
     if not call(["hdfs", "dfs", "-test", "-d", hdfs_path]):
+        logging.info('Parquet Files Exist !........Deleting')
         call(["hdfs", "dfs", "-rm", "-r", "-f", hdfs_path])
-
+                     
+    logging.info('Persisting data to HDFS') 
     call(["hdfs", "dfs", "-mkdir", hdfs_path])
     call(["hdfs", "dfs", "-put", directory_path, hdfs_path])
     logging.info('Files Persisted to - %s', hdfs_path)
@@ -104,4 +105,4 @@ def download(data_source_name):
     get_raw_data(data_source_params.mapping.get(data_source_name))
     
 def persist_hdfs(data_source_name):
-persist(data_source_params.mapping.get(data_source_name))
+    persist(data_source_params.mapping.get(data_source_name))
