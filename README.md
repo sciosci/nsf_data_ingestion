@@ -20,22 +20,22 @@ The structure of the repository should be as follows:
 /nsf_data_ingestion
   # Airflow Package 
   /airflow
-  # Source Systems - Each System consists of Download and Parquet Write Process Scripts
+  # Source Systems - (Each System consists of Download and Parquet Write Process Scripts)
   /arxiv
   /medline
   /federal_reporter
   /pubmed
-  # Config - Config Files
+  # Config - (Config Files)
   /config
     /nsf_config
     /spark_config
-  # Objects - Params particular to Source System
+  # Objects - (Params particular to Source System)
   /objects
     /data_source_params
-  # Utils - Common Functions and Utilities
+  # Utils - (Common Functions and Utilities)
   /utils
     /utils_functions
-  # Models - Models used by recommendation System (Aggregation)
+  # Models - (Models used by recommendation System - Aggregation)
   /models
     /tfdif_aggregate  
  ```
