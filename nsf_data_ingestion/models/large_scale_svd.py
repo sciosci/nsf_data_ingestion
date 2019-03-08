@@ -3,6 +3,9 @@ This module defines
 
 """
 from gensim.models.lsimodel import Projection
+from pyspark.ml.linalg import Vectors
+from pyspark.sql import functions as fn
+from .tfidf_model import create_spark_session
 
 
 def create_projection(m, k, docs, power_iters=2, extra_dims=10):
@@ -75,3 +78,41 @@ def compute_svd(corpus_rdd, m, k, power_iters=2, extra_dims=10):
 
     # Merge projects one by one on the mappers
     return binary_aggregate(projections_rdd, merge)
+
+
+if __name__ == "__main__":
+    # tfidf result location
+    tfidf_path = sys.argv[1]
+    # where to save tfidf with SVD
+    topic_path = sys.argv[2]
+
+    spark = create_spark_session('svd-computation')
+
+    tfidf_all = spark.read.parquet(tfidf_path)
+
+    m = tfidf_all.first().tfidf
+    # number of dimensions
+    num_topics = 100
+
+    corpus_rdd = tfidf_all. \
+        select('tfidf').rdd. \
+        map(lambda row: tuple(zip(row.tfidf.indices, row.tfidf.values)))
+
+    # find SVD
+    model = compute_svd(corpus_rdd, m, num_topics).first()
+    u = model.u
+    sinv = 1 / model.s
+    # distribute
+    u_bc = spark.sparkContext.broadcast(u)
+    sinv_bc = spark.sparkContext.broadcast(sinv)
+
+
+    def transform(tfidf):
+        return Vectors.dense((sinv_bc.value * tfidf.dot(u_bc.value)))
+
+
+    udf_transform = fn.udf(transform, VectorUDT())
+    topic_df = tfidf_all.select('*', udf_transform('tfidf').alias('topic')).drop('tfidf')
+
+    # save results
+    topic_df.write.parquet(topic_path, mode="overwrite")
