@@ -25,7 +25,7 @@ def get_archive_file_list():
 
 def pull():
     os.chdir(nsf_config.source_path)
-    output = subprocess.check_output(["git", "pull", "origin", "branch/test"])
+    output = subprocess.check_output(["git", "pull", "origin", "feature/nsf_new_workflow"])
     logging.info('Checked Out Branch.....')
     print(os.curdir)
 
