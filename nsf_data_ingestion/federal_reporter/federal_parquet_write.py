@@ -32,7 +32,7 @@ def convert_to_parquet(spark, project_folder):
 def main(data_source_name):    
     project_folder = '/user/ananth/federal/'
     logging.info('Creating Spark Session....')
-    spark = SparkSession.builder.config('spark.jars.packages', 'com.databricks:spark-xml_2.11:0.4.1').config("spark.executor.instances", '3').config("spark.executor.memory", '30g').config('spark.executor.cores', '5').config('spark.cores.max', '5').appName(data_source_name).getOrCreate()
+    spark = SparkSession.builder.config('spark.jars', '/home/ananth/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '30g').config('spark.executor.cores', '5').config('spark.cores.max', '5').appName(data_source_name).getOrCreate()
     logging.info('Writing to Parquet.....')
     convert_to_parquet(spark, project_folder)
     logging.info('Parquet Write Complete.....')

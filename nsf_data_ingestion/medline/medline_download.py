@@ -26,7 +26,7 @@ def download_med_data(param_list):
     
     last_load = get_last_load(directory_path_data, timestamp_file)
     
-    if last_load >= 86400:
+    if last_load >= 604800:
         logging.info('Old Data. Downloading Updated Data')
         rmtree(directory_path_data)
         os.makedirs(directory_path_data)

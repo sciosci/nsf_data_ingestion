@@ -46,9 +46,13 @@ arxiv_xml_path = '/user/ananth/arxiv_data/arxiv_data/'
 arxiv_parquet_path = '/user/ananth/arxiv_data/parquet/'
 
 
-#TFDIF VARIABLES
+#TFIDF VARIABLES
 stop_words_url = 'http://ir.dcs.gla.ac.uk/resources/linguistic_utils/stop_words'
-
+tfidf_path = '/user/ananth/tdifupdate/'
+tfidf_topic_path = '/user/ananth/tfidf_topic/' 
+num_topics = 100
+power_iters = 2
+extra_dims = 10
 
 #HDFS Parameters
 hdfs_read_BINARY = 'binary'
@@ -62,3 +66,4 @@ pubmed = 'pubmed'
 federal_reporter = 'federal_reporter'
 arxiv = 'arxiv'
 tfdif = 'tfdif'
+svd_compute = 'svd_compute'

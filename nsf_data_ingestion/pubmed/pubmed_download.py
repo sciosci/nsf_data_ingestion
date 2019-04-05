@@ -24,7 +24,7 @@ def download_pubmed_data(param_list):
     
     last_load = get_last_load(directory_path_data, timestamp_file)
     
-    if last_load >= 86400:
+    if last_load >= 604800:
         logging.info('Old Data. Downloading Updated Data')
         if os.path.exists(directory_path_data):
             rmtree(directory_path_data)

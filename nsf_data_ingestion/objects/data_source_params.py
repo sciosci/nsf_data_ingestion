@@ -51,10 +51,27 @@ arxiv_param =            {'data_source_name' : nsf_config.arxiv,
                          }
 
 
-tfdif_params =           {'stop_words_url': nsf_config.stop_words_url}
+tfidf_params =           {'stop_words_url': nsf_config.stop_words_url,
+                          'tfidf_path': nsf_config.tfidf_path,
+                          'tfidf_topic_path': nsf_config.tfidf_topic_path,
+                          'num_topics': nsf_config.num_topics,
+                          'power_iters': nsf_config.power_iters, 
+                          'extra_dims': nsf_config.extra_dims
+                         }
+
+svd_params =             {'data_source_name': nsf_config.svd_compute,
+                          'stop_words_url': nsf_config.stop_words_url,
+                          'tfidf_path': nsf_config.tfidf_path,
+                          'tfidf_topic_path': nsf_config.tfidf_topic_path,
+                          'num_topics': nsf_config.num_topics,
+                          'power_iters': nsf_config.power_iters, 
+                          'extra_dims': nsf_config.extra_dims
+                         }
 
 mapping =                {'federal_reporter': federal_reporter_param,
                            'medline': medline_param,
                            'pubmed': pubmed_param,
-                           'arxiv': arxiv_param
+                           'arxiv': arxiv_param,
+                           'tfidf': tfidf_params,
+                           'svd_compute': svd_params
                          }

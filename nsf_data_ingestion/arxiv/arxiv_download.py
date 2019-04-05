@@ -1,5 +1,7 @@
 import sys
 import os
+import calendar
+import time
 sys.path.append('/home/ananth/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
@@ -9,6 +11,8 @@ logging.getLogger().setLevel(logging.INFO)
 from datetime import datetime
 import urllib.request
 import time
+from shutil import copyfile
+from shutil import rmtree
 from subprocess import call
 
 retry_time = 45
@@ -23,7 +27,11 @@ def get_raw_data(param_list):
     
     last_load = get_last_load(path, timestamp_file)
     
-    if last_load >= 86400:
+    if last_load >= 604800:
+        
+        logging.info('Old Data. Downloading Updated Data')
+        rmtree(path)
+        os.makedirs(path)
     
         logging.info('Downloading Data.........to - ' + path)
         start = time.clock()
@@ -34,7 +42,7 @@ def get_raw_data(param_list):
         rawfile.write(response)
         rawfile.close()
 
-        #save_to_hdfs("papers_0.xml", path)
+        
 
         end = time.clock()
         logging.info("takes: %f s" % (end - start))
@@ -45,46 +53,56 @@ def get_raw_data(param_list):
             pos = response.rfind('>', pos_start, pos_end)
             resume_token = response[pos + 1:pos_end]
             logging.info("request_resume: %s" % (resume_token))
-            get_resume(resume_token, path, hdfs_path, param_list)
+            get_resume(resume_token, path, param_list)
         
         f = open(path + "time_stamp.txt", "a")
         cur_time = calendar.timegm(time.gmtime())
         f.write(str(cur_time))
         f.close()
+        logging.info('Data Downloaded......!!!!!')
 
     else:
         logging.info('Data Intact......!!!!!')
-def get_resume(token, path, hdfs_path, param_list):
+        
+        
+def get_resume(token, path, param_list):
     
+    flag = True
     resume_url = param_list.get('arxiv_raw_url')
     repeat = 0
     time.sleep(retry_time)
     start = time.clock()
     filen = 'papers_%s.xml' % (token.replace('|', '_'))
-    rawfile = open(path + filen, 'w')
-    try:
-        request = urllib.request.Request(resume_url)
-        response = urllib.request.urlopen(request).read().decode('utf-8')
-        rawfile.write(response)
-        rawfile.close()
-        #save_to_hdfs(filen, hdfs_path)
+    
+    if os.path.exists(path + filen):
+        flag = False
+    
+    if flag:
+        rawfile = open(path + filen, 'w')
+        try:
+            query = "http://export.arxiv.org/oai2?verb=ListRecords&resumptionToken=%s" % (token)
+            request = urllib.request.Request(query)
+            response = urllib.request.urlopen(request).read().decode('utf-8')
+            rawfile.write(response)
+            rawfile.close()
 
-        end = time.clock()
-        logging.info("takes: %f s" % (end - start))
 
-        pos_start = response.rfind('<resumptionToken')
-        pos_end = response.rfind('</resumptionToken')
-        if pos_end > 0 and pos_end > pos_start and repeat < 20:
-            pos = response.rfind('>', pos_start, pos_end)
-            resume_token = response[pos + 1:pos_end]
-            logging.info("request_resume: %s" % (resume_token))
-            get_resume(resume_token, path, hdfs_path, param_list)
-            repeat += 1
-    except Exception as err:
-        logging.info(err)
-        logging.info("retry resume_token: %s" % (token))
-        time.sleep(30)
-        get_resume(token)
+            end = time.clock()
+            logging.info("takes: %f s" % (end - start))
+
+            pos_start = response.rfind('<resumptionToken')
+            pos_end = response.rfind('</resumptionToken')
+            if pos_end > 0 and pos_end > pos_start and repeat < 20:
+                pos = response.rfind('>', pos_start, pos_end)
+                resume_token = response[pos + 1:pos_end]
+                logging.info("request_resume: %s" % (resume_token))
+                get_resume(resume_token, path, param_list)
+                repeat += 1
+        except Exception as err:
+            logging.info(err)
+            logging.info("retry resume_token: %s" % (token))
+            time.sleep(30)
+            get_resume(token, path, param_list)
 
 
 def persist(param_list):

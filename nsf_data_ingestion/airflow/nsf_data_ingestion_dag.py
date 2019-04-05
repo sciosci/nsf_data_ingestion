@@ -1,3 +1,5 @@
+import findspark
+findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
@@ -13,11 +15,9 @@ from nsf_data_ingestion.medline.medline_download import *
 from nsf_data_ingestion.medline import medline_parquet_write
 from nsf_data_ingestion.federal_reporter import federal_parquet_write
 from nsf_data_ingestion.models import tfidf_aggregate
-#from nsf_data_ingestion.medline import medline_parquet_write
-#from nsf_data_ingestion.federal_reporter import federal_parquet_write
-#from nsf_data_ingestion.medline import medline_parquet_write
-#from nsf_data_ingestion.models import tfidf_aggregate
+from nsf_data_ingestion.models import large_scale_svd
 from nsf_data_ingestion.arxiv import arxiv_download
+from nsf_data_ingestion.arxiv import arxiv_parquet_write
 from nsf_data_ingestion.arxiv.arxiv_download import *
 
 from nsf_data_ingestion.objects import data_source_params
@@ -32,13 +32,13 @@ from subprocess import call
 
 default_args = {
     'owner':'nsf_data_ingestion',
-    'depends_on_past':'False',
-    'retry_delay': timedelta(minutes=10),
+    'depends_on_past': False,
+    'retry_delay': timedelta(minutes=3),
     'retries': 3,
     'start_date': datetime.now(),
 }
 
-dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days=3), catchup=False)
+dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days=7), catchup=False)
 
 GitClone = PythonOperator(
     task_id='GitClone',
@@ -215,7 +215,7 @@ Arxiv_Persist = PythonOperator(
 
 Arxiv_Parquet = BashOperator(
     task_id='Arxiv_Parquet',
-    bash_command='date',
+    bash_command='python /home/ananth/nsf_data_ingestion/nsf_data_ingestion/arxiv/arxiv_parquet_write.py',
     retries=3,
     dag=dag,
 )
@@ -227,3 +227,14 @@ Arxiv_Parquet.set_upstream(Arxiv_Persist)
 TFDIF_Model.set_upstream(Medline_Parquet)
 TFDIF_Model.set_upstream(Federal_Parquet)
 TFDIF_Model.set_upstream(Arxiv_Parquet)
+
+
+SVD_Compute = PythonOperator(
+    task_id='SVD_Compute',
+    python_callable = large_scale_svd.tfidf_large_scale,
+    op_kwargs={'data_source_name': nsf_config.svd_compute},
+    retries=3,
+    dag=dag,
+)
+
+SVD_Compute.set_upstream(TFDIF_Model)
