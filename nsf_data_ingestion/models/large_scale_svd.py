@@ -124,11 +124,16 @@ def tfidf_large_scale(data_source_name):
     print(param_list)
     
     # tfidf result location
-    tfidf_path = param_list.get('tfidf_path')
+    tfidf_path = '/user/sghosh08/tfidf.parquet'
     # where to save tfidf with SVD
-    topic_path = param_list.get('tfidf_topic_path')
+    topic_path = 'user/sghosh08/topic_svd'
     # number of dimensions
-    num_topics = param_list.get('num_topics')
+    num_topics = 100
+#     tfidf_path = param_list.get('tfidf_path')
+    # where to save tfidf with SVD
+#     topic_path = param_list.get('tfidf_topic_path')
+    # number of dimensions
+#     num_topics = param_list.get('num_topics')
 
     logging.info('Reading TFIDF Parquet Files.....')
     tfidf_all = spark.read.parquet(tfidf_path)

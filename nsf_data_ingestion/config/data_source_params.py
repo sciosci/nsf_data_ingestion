@@ -9,6 +9,15 @@ federal_reporter_param = {'data_source_name' : federal_reporter,
                           'directory_path': federal_directory_path_data,
                           'hdfs_read_type': hdfs_read_BINARY}
 
+grants_gov_param =        {'data_source_name' : grants_gov,
+                          'grants_download_url': grants_gov_url,
+                          'hdfs_path': grants_gov_hdfs_path,
+                          'xml_path': grants_gov_xml_path,
+                          'parquet_path': grants_gov_parquet_path,
+                          'directory_path': grants_gov_path_data,
+                          'hdfs_read_type': hdfs_read_BINARY
+                    }
+
 medline_param =          {'data_source_name' : medline,
                           'ftp_server': medline_ftp_server,
                           'medleasebaseline_url': medline_medleasebaseline,

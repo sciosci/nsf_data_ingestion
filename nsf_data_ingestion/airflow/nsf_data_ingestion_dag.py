@@ -5,15 +5,18 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 import os
 import sys
-sys.path.append('/home/ananth/nsf_data_ingestion/')
+sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
 from nsf_data_ingestion.pubmed import pubmed_download
 from nsf_data_ingestion.pubmed.pubmed_download import *
 from nsf_data_ingestion.federal_reporter import federal_reporter_download
+from nsf_data_ingestion.grants_gov import grants_gov_download_put_hdfs
+from nsf_data_ingestion.grants_gov.grants_gov_download_put_hdfs import *
 from nsf_data_ingestion.federal_reporter.federal_reporter_download import *
 from nsf_data_ingestion.medline import medline_download
 from nsf_data_ingestion.medline.medline_download import *
 from nsf_data_ingestion.medline import medline_parquet_write
 from nsf_data_ingestion.federal_reporter import federal_parquet_write
+from nsf_data_ingestion.grants_gov import write_to_parquet_grants
 from nsf_data_ingestion.models import tfidf_aggregate
 from nsf_data_ingestion.models import large_scale_svd
 from nsf_data_ingestion.arxiv import arxiv_download
@@ -76,6 +79,13 @@ Federal_Reporter = BashOperator(
     dag=dag,
 )
 
+Grants_Gov = BashOperator(
+    task_id='Grants_Gov',
+    bash_command='date',
+    retries=3,
+    dag=dag,
+)
+
 Arxiv = BashOperator(
     task_id='Arxiv',
     bash_command='date',
@@ -86,6 +96,7 @@ Arxiv = BashOperator(
 Medline.set_upstream(GitClone)
 Pubmed.set_upstream(GitClone)
 Federal_Reporter.set_upstream(GitClone)
+Grants_Gov.set_upstream(GitClone)
 Arxiv.set_upstream(GitClone)
 
 Medline_Download = PythonOperator(
@@ -193,9 +204,37 @@ Federal_Parquet = PythonOperator(
     dag=dag,
 )
 
+
+
+Grants_Download = PythonOperator(
+    task_id='Grants_Gov_Download',
+    python_callable = grants_gov_download_put_hdfs.download_grants_data,
+#     op_kwargs={'data_source_name': nsf_config.grants_gov},
+    retries=3,
+    dag=dag,
+)
+
+Grants_Parquet = PythonOperator(
+    task_id='Grants_Parquet',
+    python_callable = write_to_parquet_grants.main,
+#     op_kwargs={'data_source_name': nsf_config.grants_gov},
+    retries=3,
+    dag=dag,
+)
+
+
+
+
+
+
+
+
 Federal_Download.set_upstream(Federal_Reporter)
 Federal_Persist.set_upstream(Federal_Download)
 Federal_Parquet.set_upstream(Federal_Persist)
+
+Grants_Download.set_upstream(Grants_Gov)
+Grants_Parquet.set_upstream(Grants_Download)
 
 Arxiv_Download = PythonOperator(
     task_id='Arxiv_Download',

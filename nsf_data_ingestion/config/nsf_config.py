@@ -1,6 +1,6 @@
-libraries_list = ['/home/ananth/nsf_data_ingestion/libraries/pubmed_parser_lib.zip',
+libraries_list = ['/home/sghosh08/nsf_new/libraries/pubmed_parser_lib.zip',
                   '/home/ananth/nsf_data_ingestion/libraries/config.zip',
-                  '/home/ananth/nsf_data_ingestion/libraries/unidecode_lib.zip']
+                  '/home/sghosh08/nsf_new/libraries/unidecode_lib.zip']
 source_path = '/home/ananth/nsf_data_ingestion/'
 spark_path = '/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/'
 
@@ -36,6 +36,13 @@ federal_hdfs_path = '/user/ananth/federal/'
 federal_xml_path = '/user/ananth/federal/federal_data'
 federal_parquet_path = '/user/ananth/federal/parquet/'
 
+#GRANTS GOV VARIABLES
+grants_gov_url = 'https://www.grants.gov/web/grants/xml-extract.html'
+grants_gov_path_data = '/home/sghosh08/grants/'
+grants_gov_hdfs_path = '/user/sghosh08/grants/data/raw/'
+grants_gov_xml_path = '/user/sghosh08/grants/data/xml/'
+grants_gov_parquet_path = '/user/sghosh08/grants/parquet/'
+
 
 #ARXIV VARIABLES
 arxiv_raw_url = 'http://export.arxiv.org/oai2?verb=ListRecords&metadataPrefix=oai_dc'
@@ -64,6 +71,7 @@ hdfs_read_FILE = 'file'
 medline = 'medline'
 pubmed = 'pubmed'
 federal_reporter = 'federal_reporter'
+grants_gov = 'grants_gov'
 arxiv = 'arxiv'
 tfdif = 'tfdif'
 svd_compute = 'svd_compute'

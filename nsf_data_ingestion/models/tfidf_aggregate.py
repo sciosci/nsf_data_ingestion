@@ -8,6 +8,7 @@ findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.4588
 
 import pyspark
 from pyspark.sql import functions as fn
+from pyspark.sql.functions import regexp_extract, col, split, regexp_replace
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import CountVectorizer, IDF, Tokenizer, RegexTokenizer, StopWordsRemover, IDF
@@ -151,6 +152,56 @@ def read_arxiv(spark, processed_path):
         fn.lit(None).astype('string').alias('other_id')
     )
 
+def read_grants_gov(spark, processed_path):
+    """Creates a dataframe with the columns:
+    `id`: global id
+    `source`: grants_gov
+    `source_id`: project id
+    `type`: grant
+    `title`: PROJECT_TITLE
+    `venue`: AGENCY
+    `abstract`
+    `scientists`: CONTACT_PI + OTHER_PIS
+    `organizations`: ORGANIZATION_NAME
+    `date`: BUDGET_START_DATE
+    `content`: concatenation of abstract, title, PIs, agency, and organization name
+    `end_date`: BUDGET_END_DATE
+    `city`: ORGANIZATION_CITY
+    `country`: ORGANIZATION_COUNTRY
+    `other_id`: PROJECT_NUMBER
+    """
+    
+    synopsis_df = spark.read.parquet(os.path.join(processed_path, 'synopsis.parquet'))
+    synopsis_df=synopsis_df.withColumn("GrantorContactName",fn.col("GrantorContactText"))
+    forecast_df = spark.read.parquet(os.path.join(processed_path, 'forecast.parquet'))
+    forecast_df=forecast_df.drop("OpportunityTitle","AgencyCode","AgencyName","AdditionalInformationOnEligibility","OpportunityNumber","Description","PostDate", "CloseDate",'GrantorContactName')
+    together_df=synopsis_df.join(forecast_df, "OpportunityID", "outer")
+    
+    return together_df.select(fn.concat(fn.lit('gg_'), fn.col('OpportunityID')).alias('id'),
+            fn.lit('grants_gov').alias('source'),
+            fn.col('OpportunityID').astype('string').alias('source_id'),
+            fn.lit('grant').alias('type'),
+            fn.col('OpportunityTitle').alias('title'),
+            fn.col('AgencyCode').alias('venue'),
+            fn.col('AdditionalInformationOnEligibility').alias('abstract'),
+            fn.col('GrantorContactName').alias('scientists'),
+            fn.col('AgencyName').astype('string').alias('organizations'),
+            fn.col('PostDate').alias('date'),#PostDate
+#             fn.concat_ws(' ',
+#                       fn.col('AdditionalInformationOnEligibility'),
+#                       fn.col('OpportunityTitle'),
+#                       fn.col('GrantorContactName'),
+#                       fn.col('AgencyCode'),
+#                       fn.col('AgencyName')
+#                 ).alias('content'),
+            fn.col('Description').alias('content'),
+            fn.col('CloseDate').alias('end_date'),#CloseDate
+            fn.lit('NewYork').alias('city'),
+            fn.lit('United States').alias('country'),
+            fn.col('OpportunityNumber').alias('other_id')
+    )
+
+
 
 def add_rowid(x):
     """Called on a RDD when zipWithIndex() is used"""
@@ -188,18 +239,45 @@ def fit_tfidf_pipeline(content_df):
     return tfidf_transformer
 
 def main(data_source):
-    processed_path = '/user/ananth/medline/parquet/'
+    processed_path = '/user/ananth/medline/'
     fed_processed_path = '/user/ananth/data/raw/federal_exporter/'
-    models_path = '/user/ananth/tdif/'
-    tfidf_path = '/user/ananth/tdifupdate/'
-    arxiv_path = '/user/ananth/arxiv/parquet/'
-    spark = create_spark_session('tfdf')
+#     models_path = '/user/ananth/tdif/'
+#     tfidf_path = '/user/ananth/tdifupdate/'
+    arxiv_path = '/user/ananth/arxiv/'   
+    fed_processed_path = '/user/ananth/data/raw/federal_exporter/'
+
+   
+
+    
+
+     ###################models and tfidf path#######################
+    models_path = '/user/sghosh08/'
+    tfidf_path = '/user/sghosh08/tfidf.parquet'
+    
+    #location where processed synopsis parquet for grants.gov are placed
+    processed_path_grants = '/user/sghosh08/grants/'    
+    
+    #location where processed synopsis parquet for grants.gov are placed
+    
+    spark = create_spark_session('tfidf-computation grants')
 
     arxiv_df = read_arxiv(spark, arxiv_path)
     medline_df = read_medline(spark, processed_path)
     fe_df = read_federal_exporter(spark, fed_processed_path)
+    grantsgovs_df = read_grants_gov(spark,os.path.join(processed_path_grants))
+    grantsgovs_df = grantsgovs_df.filter((grantsgovs_df["content"].isNotNull())).\
+                                filter("content != ' '").\
+                                    filter("content != ''")
+    split_col = pyspark.sql.functions.split(grantsgovs_df['scientists'], '&')
 
-    dataframe_list = [medline_df, fe_df]
+    grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col.getItem(0))
+    split_col1 = pyspark.sql.functions.split(grantsgovs_df['scientists'], '[0-9]')
+    grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col1.getItem(0))
+    grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["date"].cast("string"))
+    grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["end_date"].cast("string"))
+    grantsgovs_df = grantsgovs_df.withColumn("date",expr("substring(date, 4, length(date)-3)"))
+    
+    dataframe_list = [medline_df, fe_df, grantsgovs_df, grantsgovs_df]
     all_data_df = content_df = reduce(DataFrame.unionAll, dataframe_list)
 
     tfidf_transformer = fit_tfidf_pipeline(all_data_df)
