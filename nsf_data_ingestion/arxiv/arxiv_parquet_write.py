@@ -49,8 +49,10 @@ def process(file):
         return data
 
 if __name__ == '__main__':
-    xmlpath = '/user/ananth/arxiv_data/arxiv_data/'
-    parpath = '/user/ananth/arxiv/parquet/'
+#     xmlpath = '/user/ananth/arxiv_data/arxiv_data/'
+#     parpath = '/user/ananth/arxiv/parquet/'
+    xmlpath='/user/sghosh08/arxiv_data/arxiv_data/'
+    parpath = '/user/sghosh08/arxiv/parquet/'
     spark = SparkSession.builder.getOrCreate()
     sc = spark.sparkContext
     filep = os.path.join(xmlpath, "papers_*.xml")

@@ -2,7 +2,8 @@ import sys
 import os
 import calendar
 import time
-sys.path.append('/home/ananth/nsf_data_ingestion/')
+# sys.path.append('/home/ananth/nsf_data_ingestion/')
+sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_last_load
@@ -21,14 +22,16 @@ retry_time = 45
 # save_path = ""
 
 def get_raw_data(param_list):
-    path = param_list.get('directory_path')
+#     path = param_list.get('download_path')
+    path = '/home/sghosh08/airflow/arxiv_data/'
+    logging.info("checking directory path " , type(path),path)
     raw_url = param_list.get('arxiv_raw_url')
     timestamp_file = param_list.get('timestamp_file')
     
     last_load = get_last_load(path, timestamp_file)
     
-    if last_load >= 604800:
-        
+#     if last_load >= 604800:
+    if 1:     
         logging.info('Old Data. Downloading Updated Data')
         rmtree(path)
         os.makedirs(path)
@@ -107,8 +110,10 @@ def get_resume(token, path, param_list):
 
 def persist(param_list):
 
-    hdfs_path = param_list.get('hdfs_path')
-    directory_path = param_list.get('directory_path')
+#     hdfs_path = param_list.get('hdfs_path')
+#     directory_path = param_list.get('directory_path')
+    hdfs_path = '/user/sghosh08/arxiv_data/'
+    directory_path = '/home/sghosh08/airflow/arxiv_data/'
     if not call(["hdfs", "dfs", "-test", "-d", hdfs_path]):
         logging.info('Parquet Files Exist !........Deleting')
         call(["hdfs", "dfs", "-rm", "-r", "-f", hdfs_path])

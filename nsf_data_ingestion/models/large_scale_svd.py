@@ -19,11 +19,11 @@ def create_spark_session(name):
     logging.info('Spark Session Created.....')
     
     logging.info('Adding Libraries....')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/libraries/gensim.zip')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/libraries/boto3.zip')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/libraries/botocore.zip')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/libraries/jmespath.zip')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/libraries/smart_open.zip')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/gensim.zip')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/boto3.zip')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/botocore.zip')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/jmespath.zip')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/smart_open.zip')
     spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/dist/nsf_data_ingestion-0.0.1-py3.6.egg')
     return spark
 

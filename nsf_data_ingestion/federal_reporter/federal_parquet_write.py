@@ -14,7 +14,6 @@ from pyspark.sql import SparkSession
 
 def convert_to_parquet(spark, project_folder):
     file_list = ['projects', 'abstracts']
-    
     for filename in file_list:
         location = project_folder + filename
         df = spark.read.\
@@ -30,7 +29,7 @@ def convert_to_parquet(spark, project_folder):
         df.write.parquet(location + '.parquet')
 
 def main(data_source_name):    
-    project_folder = '/user/ananth/federal/'
+    project_folder = '/user/sghosh08/federal/'
     logging.info('Creating Spark Session....')
     spark = SparkSession.builder.config('spark.jars', '/home/ananth/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '30g').config('spark.executor.cores', '5').config('spark.cores.max', '5').appName(data_source_name).getOrCreate()
     logging.info('Writing to Parquet.....')

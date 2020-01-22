@@ -25,48 +25,41 @@ from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_last_load
 
 def download_grants_data():
-    
+    print("started")
     #directory_path_data = param_list.get('directory_path')
-    directory_path_data = '/home/sghosh08/grants/'
+    directory_path_data = '/home/sghosh08/grants_gov/'
     hdfs_path = '/user/sghosh08/grants/data/raw/'
     print(directory_path_data)
-   
+    
     
     today = datetime.date.today()
     daystart = int(today.strftime("%d"))
-    dayend = daystart - 7
+    dayend = daystart - 6
     while(dayend<=daystart):        
-        print(today)
         daystr = today.strftime("%Y%m%d")
         logging.info("Processing file for the date : ", daystr)
         filenamezip = "GrantsDBExtract" + daystr + "v2.zip"
+        print(str(os.path.exists(directory_path_data+filenamezip)))
+        if(os.path.exists(directory_path_data+filenamezip)):
+            print("file persists")
+            os.remove(directory_path_data+filenamezip)
+#             
+            
         url = "https://www.grants.gov/web/grants/xml-extract.html?download=" + filenamezip
-#downloading last seven days files        
+# #downloading last seven days files 
+        
         os.system('wget ' + url + ' -O ' + directory_path_data + filenamezip + ' -nv')
         print("Successfully extracted file from grants gov url ",filenamezip)
-#checking file persist and put in hdfs       
-        filelist = glob.glob(os.path.join(directory_path_data, "*.xml"))
-        for f in filelist:
-            os.remove(f)
-        logging.info('Persisting data to HDFS')
-        if not call(["hdfs", "dfs", "-test", "-d", hdfs_path]):
-            call(["hdfs", "dfs", "-rm", "-r", "-f", hdfs_path])
-        
-        call(["hdfs", "dfs", "-mkdir", hdfs_path])
- 
-            
-        logging.info(directory_path_data)
-        call('unzip -p "'+directory_path_data+'Grants*.zip"'+' | hdfs dfs -put - '+hdfs_path+'grants.xml', shell = True)
-
-        
-        
         today = today - datetime.timedelta(days=1)
         daystart = int(today.strftime("%d"))
-    
-   
 
-#     spark = SparkSession.builder.\
-#             config('spark.jars', '/home/ananth/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').\
-#             getOrCreate()
-#     #project_folder = sys.argv[1]
-#     download_grants_data()
+def hdfs_put_grants_data():
+    directory_path_data = '/home/sghosh08/grants_gov/'
+    grants_gov_xml_path = '/user/sghosh08/grants/data/xml/'
+    logging.info('Persisting data to HDFS', call(["hdfs", "dfs", "-test", "-d", grants_gov_xml_path]))
+        
+    if not call(["hdfs", "dfs", "-test", "-d", grants_gov_xml_path]):
+         call(["hdfs", "dfs", "-rm","-r","-f", grants_gov_xml_path])
+    call(["hdfs", "dfs", "-mkdir", grants_gov_xml_path])
+    call('unzip -p "'+directory_path_data+'Grants*.zip"'+' | hdfs dfs -put - '+grants_gov_xml_path+'grants.xml', shell = True)
+    logging.info(directory_path_data)

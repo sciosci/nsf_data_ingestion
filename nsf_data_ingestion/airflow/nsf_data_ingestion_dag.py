@@ -21,6 +21,7 @@ from nsf_data_ingestion.models import tfidf_aggregate
 from nsf_data_ingestion.models import large_scale_svd
 from nsf_data_ingestion.arxiv import arxiv_download
 from nsf_data_ingestion.arxiv import arxiv_parquet_write
+from nsf_data_ingestion.kimun_loader import kimun_loader
 from nsf_data_ingestion.arxiv.arxiv_download import *
 
 from nsf_data_ingestion.objects import data_source_params
@@ -43,12 +44,12 @@ default_args = {
 
 dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days=7), catchup=False)
 
-GitClone = PythonOperator(
-    task_id='GitClone',
-    python_callable = utils_functions.pull,
-    retries=3,
-    dag=dag,
-)
+# GitClone = PythonOperator(
+#     task_id='GitClone',
+#     python_callable = utils_functions.pull,
+#     retries=3,
+#     dag=dag,
+# )
 
 TFDIF_Model = PythonOperator(
     task_id='TFDIF_Model',
@@ -93,11 +94,11 @@ Arxiv = BashOperator(
     dag=dag,
 )
 
-Medline.set_upstream(GitClone)
-Pubmed.set_upstream(GitClone)
-Federal_Reporter.set_upstream(GitClone)
-Grants_Gov.set_upstream(GitClone)
-Arxiv.set_upstream(GitClone)
+# Medline.set_upstream(GitClone)
+# Pubmed.set_upstream(GitClone)
+# Federal_Reporter.set_upstream(GitClone)
+# Grants_Gov.set_upstream(GitClone)
+# Arxiv.set_upstream(GitClone)
 
 Medline_Download = PythonOperator(
     task_id='Medline_Download',
@@ -117,7 +118,7 @@ Medline_Persist = PythonOperator(
 
 Medline_Parquet = BashOperator(
     task_id='Medline_Parquet',
-    bash_command = 'python /home/ananth/nsf_data_ingestion/nsf_data_ingestion/medline/medline_parquet_write.py',
+    bash_command = 'python /home/sghosh08/nsf_new/nsf_data_ingestion/nsf_data_ingestion/medline/medline_parquet_write.py',
     retries=3,
     dag=dag,
 )
@@ -204,7 +205,9 @@ Federal_Parquet = PythonOperator(
     dag=dag,
 )
 
-
+Federal_Download.set_upstream(Federal_Reporter)
+Federal_Persist.set_upstream(Federal_Download)
+Federal_Parquet.set_upstream(Federal_Persist)
 
 Grants_Download = PythonOperator(
     task_id='Grants_Gov_Download',
@@ -214,27 +217,25 @@ Grants_Download = PythonOperator(
     dag=dag,
 )
 
-Grants_Parquet = PythonOperator(
-    task_id='Grants_Parquet',
-    python_callable = write_to_parquet_grants.main,
+Grants_Persists = PythonOperator(
+    task_id='Grants_Persists',
+    python_callable = grants_gov_download_put_hdfs.hdfs_put_grants_data,
 #     op_kwargs={'data_source_name': nsf_config.grants_gov},
     retries=3,
     dag=dag,
 )
 
-
-
-
-
-
-
-
-Federal_Download.set_upstream(Federal_Reporter)
-Federal_Persist.set_upstream(Federal_Download)
-Federal_Parquet.set_upstream(Federal_Persist)
+Grants_Parquet = BashOperator(
+    task_id='Grants_Parquet',
+    bash_command = 'python /home/sghosh08/nsf_new/nsf_data_ingestion/nsf_data_ingestion/grants_gov/write_to_parquet_grants.py',
+    retries=3,
+    dag=dag,
+)
 
 Grants_Download.set_upstream(Grants_Gov)
-Grants_Parquet.set_upstream(Grants_Download)
+Grants_Persists.set_upstream(Grants_Download)
+Grants_Parquet.set_upstream(Grants_Persists)
+
 
 Arxiv_Download = PythonOperator(
     task_id='Arxiv_Download',
@@ -254,7 +255,7 @@ Arxiv_Persist = PythonOperator(
 
 Arxiv_Parquet = BashOperator(
     task_id='Arxiv_Parquet',
-    bash_command='python /home/ananth/nsf_data_ingestion/nsf_data_ingestion/arxiv/arxiv_parquet_write.py',
+    bash_command='python /home/sghosh08/nsf_new/nsf_data_ingestion/nsf_data_ingestion/arxiv/arxiv_parquet_write.py',
     retries=3,
     dag=dag,
 )
@@ -264,8 +265,9 @@ Arxiv_Persist.set_upstream(Arxiv_Download)
 Arxiv_Parquet.set_upstream(Arxiv_Persist)
 
 TFDIF_Model.set_upstream(Medline_Parquet)
-TFDIF_Model.set_upstream(Federal_Parquet)
+# TFDIF_Model.set_upstream(Federal_Parquet)
 TFDIF_Model.set_upstream(Arxiv_Parquet)
+TFDIF_Model.set_upstream(Grants_Parquet)
 
 
 SVD_Compute = PythonOperator(
@@ -277,3 +279,18 @@ SVD_Compute = PythonOperator(
 )
 
 SVD_Compute.set_upstream(TFDIF_Model)
+
+# Kimun_Index = BashOperator(
+#     task_id='Kimun_Index',
+#     bash_command='date',
+#     dag=dag)
+
+Kimun_Index = PythonOperator(
+    task_id='Kimun_Index',
+    python_callable = kimun_loader.kimun_load,
+#     op_kwargs={'data_source_name': nsf_config.svd_compute},
+    retries=8,
+    dag=dag,
+)
+
+Kimun_Index.set_upstream(SVD_Compute)

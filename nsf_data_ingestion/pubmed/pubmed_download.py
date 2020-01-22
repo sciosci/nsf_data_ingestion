@@ -1,5 +1,6 @@
 import sys
-sys.path.append('/home/ananth/nsf_data_ingestion/')
+# sys.path.append('/home/ananth/nsf_data_ingestion/')
+sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_archive_file_list
@@ -19,9 +20,11 @@ from subprocess import call
 logging.getLogger().setLevel(logging.INFO)
 
 def download_pubmed_data(param_list):
+#     param_list = 'pubmed'
     directory_path_data = param_list.get('download_path')
+#     directory_path_data = param_list.get('pub_directory_path_data')
     timestamp_file = param_list.get('timestamp_file')
-    
+    logging.info("checking directory path " , type(directory_path_data),directory_path_data)
     last_load = get_last_load(directory_path_data, timestamp_file)
     
     if last_load >= 604800:
@@ -156,7 +159,9 @@ def persist(param_list):
 
 
 def download(data_source_name):
+    logging.info("checking data source name",data_source_params.mapping.get(data_source_name))
     download_pubmed_data(data_source_params.mapping.get(data_source_name))
+#      download_pubmed_data(pubmed)
     
 def untar(data_source_name):
     untar_file(data_source_params.mapping.get(data_source_name))

@@ -1,6 +1,7 @@
 import findspark
 findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
 import zipfile
+import zipimport
 import io
 import logging
 logging.getLogger().setLevel(logging.INFO)
@@ -18,7 +19,8 @@ from shutil import copyfile
 from shutil import rmtree
 from subprocess import call
 import sys
-sys.path.append('/home/ananth/nsf_data_ingestion/')
+# sys.path.append('/home/ananth/nsf_data_ingestion/')
+sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
 from nsf_data_ingestion.config import spark_config
 from nsf_data_ingestion.objects import data_source_params
 
@@ -30,10 +32,13 @@ def create_session(libraries_list):
                                  config('spark.executor.cores', spark_config.exec_cores).\
                                  config('spark.cores.max', spark_config.exec_max_cores).\
                                  appName(data_source_name).getOrCreate()
-    for library in libraries_list:
-        logging.info('Adding Libraries' + str(library))
-        spark.sparkContext.addPyFile(library)    # adding libraries
-        spark.sparkContext.addPyFile(library)
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/pubmed_parser-0.1.0-py3.6.egg')
+    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/Unidecode-1.1.1-py3.6.egg')
+#     for library in libraries_list:
+#         logging.info('Adding Libraries' + str(library))
+#         spark.sparkContext.addPyFile(library)    # adding libraries
+#         spark.sparkContext.addPyFile(library)
+
         
     return spark
 
@@ -59,6 +64,7 @@ if __name__ == '__main__':
     params_list = data_source_params.mapping.get(data_source_name)
     
     data_path = params_list.get('xml_path')
+    print(data_path)
     parquet_path = params_list.get('parquet_path')
     libraries_list = spark_config.libraries_list
     
