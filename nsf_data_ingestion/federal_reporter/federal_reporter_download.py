@@ -12,7 +12,7 @@ import logging
 import calendar
 import time
 from subprocess import call
-sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
+sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_last_load
@@ -23,7 +23,7 @@ def download_fed_data(param_list):
     logging.info("the list of parameters are ", param_list)
 #     directory_path_data = param_list.get('directory_path')
 #     timestamp_file = param_list.get('timestamp_file')
-    directory_path_data ='/home/sghosh08/federal_data/'
+    directory_path_data ='/home/eileen/federal_data/'
     timestamp_file = 'time_stamp.txt'
     last_load = get_last_load(directory_path_data, timestamp_file)
 #     if last_load >= 604800:
@@ -55,8 +55,8 @@ def persist1(param_list):
     logging.info("the list of parameters are ", param_list)
 #     data_path = param_list.get('directory_path')
 #     hdfs_path = param_list.get('hdfs_path')
-    data_path ='/home/sghosh08/federal_data/'
-    hdfs_path = '/user/sghosh08/federal/xml/'
+    data_path ='/home/eileen/federal_data/'
+    hdfs_path = '/user/eileen/federal/xml/'
     logging.info("data path sghosh " , data_path)
     filelist = glob.glob(os.path.join(data_path, "*.xml"))
 #     for f in filelist:
@@ -89,8 +89,8 @@ def persist1(param_list):
     
     
 def persist(param_list):
-    data_path = '/home/sghosh08/federal_data/'
-    grants_gov_xml_path = '/user/sghosh08/federal/xml/'
+    data_path = '/home/eileen/federal_data/'
+    grants_gov_xml_path = '/user/eileen/federal/xml/'
     logging.info('Persisting data to HDFS', call(["hdfs", "dfs", "-test", "-d", grants_gov_xml_path]))
         
     if not call(["hdfs", "dfs", "-test", "-d", grants_gov_xml_path]):

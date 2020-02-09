@@ -1,6 +1,6 @@
 import sys
 # sys.path.append('/home/ananth/nsf_data_ingestion/')
-sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
+sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_archive_file_list

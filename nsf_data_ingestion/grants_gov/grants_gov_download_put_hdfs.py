@@ -19,7 +19,7 @@ import logging
 import calendar
 import time
 from subprocess import call
-sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
+sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 from nsf_data_ingestion.utils.utils_functions import get_last_load
@@ -27,15 +27,16 @@ from nsf_data_ingestion.utils.utils_functions import get_last_load
 def download_grants_data():
     print("started")
     #directory_path_data = param_list.get('directory_path')
-    directory_path_data = '/home/sghosh08/grants_gov/'
-    hdfs_path = '/user/sghosh08/grants/data/raw/'
+    directory_path_data = '/home/eileen/grants_gov/'
+    hdfs_path = '/user/eileen/grants/data/raw/'
     print(directory_path_data)
     
-    
+    loopstart=1
     today = datetime.date.today()
     daystart = int(today.strftime("%d"))
     dayend = daystart - 6
-    while(dayend<=daystart):        
+    while(loopstart <=7):
+        loopstart = loopstart+1
         daystr = today.strftime("%Y%m%d")
         logging.info("Processing file for the date : ", daystr)
         filenamezip = "GrantsDBExtract" + daystr + "v2.zip"

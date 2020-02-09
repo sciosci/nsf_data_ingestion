@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
+sys.path.append('/home/eileen/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
 import os
@@ -25,11 +25,20 @@ stop_words = requests.get(nsf_config.stop_words_url).text.split()
 
 from functools import reduce
 
+# def create_spark_session(name):
+#     spark = SparkSession.builder.config("spark.executor.instances", '3')\
+#     .config("spark.executor.memory", '30g')\
+#     .config('spark.executor.cores', '7')\
+#     .config('spark.cores.max', '7')\
+#     .appName('tfdf')\
+#     .getOrCreate()
+#     return spark
 def create_spark_session(name):
-    spark = SparkSession.builder.config("spark.executor.instances", '3')\
-    .config("spark.executor.memory", '30g')\
-    .config('spark.executor.cores', '7')\
-    .config('spark.cores.max', '7')\
+    spark = SparkSession.builder.config("spark.executor.instances", '2')\
+    .config("spark.shuffle.service.enabled", "false")\
+    .config("spark.dynamicAllocation.enabled", "false")\
+    .config("spark.cores.max", "1")\
+    .config("spark.executor.cores","1")\
     .appName('tfdf')\
     .getOrCreate()
     return spark
@@ -249,7 +258,7 @@ def read_grants_gov(spark, processed_path):
     `country`: ORGANIZATION_COUNTRY
     `other_id`: PROJECT_NUMBER
     """
-    
+    print("processed path : ", processed_path)
     synopsis_df = spark.read.parquet(os.path.join(processed_path, 'synopsis.parquet'))
     synopsis_df=synopsis_df.withColumn("GrantorContactName",fn.col("GrantorContactText"))
     forecast_df = spark.read.parquet(os.path.join(processed_path, 'forecast.parquet'))
@@ -318,21 +327,21 @@ def fit_tfidf_pipeline(content_df):
     return tfidf_transformer
 
 def main(data_source):
-    processed_path = '/user/sghosh08/medline/'
+    processed_path = '/user/eileen/medline/'
     
-    fed_processed_path = '/user/sghosh08/data/raw/federal_exporter/'
+    fed_processed_path = '/user/eileen/data/raw/federal_exporter/'
     #tfidf_path = '/user/ananth/tdifupdate/'
-    arxiv_path = '/user/sghosh08/arxiv/'
+    arxiv_path = '/user/eileen/arxiv/'
    
 
     
 
     ###################sourabh ghosh code#######################
-    models_path = '/user/sghosh08/'
-    tfidf_path = '/user/sghosh08/tfidf.parquet'
+    models_path = '/user/eileen/'
+    tfidf_path = '/user/eileen/tfidf.parquet'
     
     #location where processed synopsis parquet for grants.gov are placed
-    processed_path_grants = '/user/sghosh08/grants/'    
+    processed_path_grants = '/user/eileen/grants/data/xml/'    
 
     
     spark = create_spark_session('tfidf-computation grants')

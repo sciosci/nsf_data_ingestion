@@ -1,4 +1,7 @@
 from gensim.models.lsimodel import Projection
+import findspark
+findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+import pyspark
 from pyspark.ml.linalg import Vectors
 from pyspark.sql import functions as fn
 from pyspark.sql import SparkSession
@@ -19,11 +22,11 @@ def create_spark_session(name):
     logging.info('Spark Session Created.....')
     
     logging.info('Adding Libraries....')
-    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/gensim.zip')
-    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/boto3.zip')
-    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/botocore.zip')
-    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/jmespath.zip')
-    spark.sparkContext.addPyFile('/home/sghosh08/nsf_new/nsf_data_ingestion/libraries/smart_open.zip')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/gensim.zip')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/boto3.zip')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/botocore.zip')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/jmespath.zip')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/smart_open.zip')
     spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/dist/nsf_data_ingestion-0.0.1-py3.6.egg')
     return spark
 
@@ -104,9 +107,9 @@ def compute_svd(corpus_rdd, m, k, power_iters=2, extra_dims=10):
 def write_parquet(topic_df, topic_path):
     logging.info('Writing parquet Files.....')
     
-    if not call(["hdfs", "dfs", "-test", "-d", topic_path]):
-        logging.info('Parquet Files Exist....... Deleting Old Parquet Files')
-        call(["hdfs", "dfs", "-rm", "-r", "-f", topic_path])
+#     if not call(["hdfs", "dfs", "-test", "-d", topic_path]):
+#         logging.info('Parquet Files Exist....... Deleting Old Parquet Files')
+#         call(["hdfs", "dfs", "-rm", "-r", "-f", topic_path])
 
     topic_df.write.parquet(topic_path, mode="overwrite")
     logging.info('Files Persisted to - %s', topic_path)
@@ -124,9 +127,9 @@ def tfidf_large_scale(data_source_name):
     print(param_list)
     
     # tfidf result location
-    tfidf_path = '/user/sghosh08/tfidf.parquet'
+    tfidf_path = '/user/eileen/tfidf.parquet'
     # where to save tfidf with SVD
-    topic_path = 'user/sghosh08/topic_svd'
+    topic_path = '/user/eileen/topic_svd/'
     # number of dimensions
     num_topics = 100
 #     tfidf_path = param_list.get('tfidf_path')
@@ -160,7 +163,6 @@ def tfidf_large_scale(data_source_name):
     udf_transform = fn.udf(transform, VectorUDT())
     topic_df = tfidf_all.select('*', udf_transform('tfidf').alias('topic')).drop('tfidf')
     
-    topic_df.limit(4).toPandas()
     write_parquet(topic_df, topic_path)
     spark.stop()
 
