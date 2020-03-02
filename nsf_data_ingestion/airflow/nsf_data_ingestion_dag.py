@@ -39,9 +39,17 @@ default_args = {
     'depends_on_past': False,
     'retry_delay': timedelta(minutes=3),
     'retries': 3,
-    'start_date': datetime.now(),
+    'start_date': datetime(2020, 2, 24),
 }
-
+# default_args = {
+#     'owner':'nsf_data_ingestion',
+#     'depends_on_past': False,
+#     'retry_delay': timedelta(minutes=3),
+#     'retries': 3,
+#     'start_date': datetime(2020, 2, 24),
+#     'schedule_interval': '@weekly'
+# }
+# dag = DAG('nsf_data_ingestion', default_args = default_args, catchup=False)
 dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days = 7), catchup=False)
 
 # GitClone = PythonOperator(
@@ -292,5 +300,20 @@ Kimun_Index = BashOperator(
 #     retries=8,
 #     dag=dag,
 # )
+es_delete = BashOperator(
+    task_id='es_delete',
+    bash_command='python /home/eileen/nsf_data_ingestion/nsf_data_ingestion/kimun_loader/es_deleteindex.py',
+    retries=3,
+    dag=dag,
+)
 
-Kimun_Index.set_upstream(SVD_Compute)
+es_create = BashOperator(
+    task_id='es_create',
+    bash_command='python /home/eileen/nsf_data_ingestion/nsf_data_ingestion/kimun_loader/es_createindex.py',
+    retries=3,
+    dag=dag,
+)
+
+es_delete.set_upstream(SVD_Compute)
+es_create.set_upstream(es_delete)
+Kimun_Index.set_upstream(es_create)
