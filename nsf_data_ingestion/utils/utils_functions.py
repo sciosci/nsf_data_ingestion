@@ -2,9 +2,9 @@ import os
 import subprocess
 import sys
 # sys.path.append('/home/ananth/nsf_data_ingestion/')
-sys.path.append('/home/sghosh08/nsf_new/nsf_data_ingestion/')
-from nsf_data_ingestion.config import nsf_config
-from nsf_data_ingestion.objects import data_source_params
+sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
+# from nsf_data_ingestion.config import nsf_config
+# from nsf_data_ingestion.objects import data_source_params
 from shutil import copyfile
 from shutil import rmtree
 import tarfile
@@ -25,8 +25,9 @@ def get_archive_file_list():
 
 
 def pull():
-    os.chdir(nsf_config.source_path)
-    output = subprocess.check_output(["git", "pull", "origin", "feature/nsf_new_workflow"])
+#     os.chdir(nsf_config.source_path)
+    os.chdir("/home/eileen/nsf_data_ingestion/")
+    output = subprocess.check_output(["git", "pull", "origin", "origin/feature/nsf_grants_merged"])
     logging.info('Checked Out Branch.....')
     print(os.curdir)
 
@@ -54,3 +55,6 @@ def get_last_load(directory_path_data, timestamp_file):
         logging.info('Directory Path Doesnot Exist....Creating New')
         os.makedirs(directory_path_data)
         get_last_load(directory_path_data, timestamp_file)
+        
+if __name__ == "__main__":
+    pull()

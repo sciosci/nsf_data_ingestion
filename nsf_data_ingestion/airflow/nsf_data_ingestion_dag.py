@@ -273,9 +273,10 @@ Arxiv_Persist.set_upstream(Arxiv_Download)
 Arxiv_Parquet.set_upstream(Arxiv_Persist)
 
 TFDIF_Model.set_upstream(Medline_Parquet)
-# TFDIF_Model.set_upstream(Federal_Parquet)
+TFDIF_Model.set_upstream(Federal_Parquet)
 TFDIF_Model.set_upstream(Arxiv_Parquet)
 TFDIF_Model.set_upstream(Grants_Parquet)
+TFDIF_Model.set_upstream(Pubmed_Parquet)
 
 
 SVD_Compute = PythonOperator(
