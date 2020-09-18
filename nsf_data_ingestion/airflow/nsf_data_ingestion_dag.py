@@ -52,12 +52,12 @@ default_args = {
 # dag = DAG('nsf_data_ingestion', default_args = default_args, catchup=False)
 dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days = 7), catchup=False)
 
-# GitClone = PythonOperator(
-#     task_id='GitClone',
-#     python_callable = utils_functions.pull,
-#     retries=3,
-#     dag=dag,
-# )
+GitClone = PythonOperator(
+    task_id='GitClone',
+    python_callable = utils_functions.pull,
+    retries=3,
+    dag=dag,
+)
 
 TFDIF_Model = PythonOperator(
     task_id='TFDIF_Model',
@@ -102,11 +102,11 @@ Arxiv = BashOperator(
     dag=dag,
 )
 
-# Medline.set_upstream(GitClone)
-# Pubmed.set_upstream(GitClone)
-# Federal_Reporter.set_upstream(GitClone)
-# Grants_Gov.set_upstream(GitClone)
-# Arxiv.set_upstream(GitClone)
+Medline.set_upstream(GitClone)
+Pubmed.set_upstream(GitClone)
+Federal_Reporter.set_upstream(GitClone)
+Grants_Gov.set_upstream(GitClone)
+Arxiv.set_upstream(GitClone)
 
 Medline_Download = PythonOperator(
     task_id='Medline_Download',

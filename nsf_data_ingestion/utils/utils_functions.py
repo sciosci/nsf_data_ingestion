@@ -28,7 +28,7 @@ def pull():
 #     os.chdir(nsf_config.source_path)
     os.chdir("/home/eileen/nsf_data_ingestion/")
     output = subprocess.check_output(["git", "pull", "origin", "origin/feature/nsf_grants_merged"])
-    logging.info('Checked Out Branch.....')
+    logging.info('Pulled Out Branch.....')
     print(os.curdir)
 
 
