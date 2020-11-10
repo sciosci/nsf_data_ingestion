@@ -62,17 +62,16 @@ def parse_gzip_medline_str(gzip_str):
 if __name__ == '__main__':
     data_source_name = 'medline'
     params_list = data_source_params.mapping.get(data_source_name)
-    
-    data_path = params_list.get('xml_path')
-    print(data_path)
-    parquet_path = params_list.get('parquet_path')
+    medline_xml_path= params_list.get('xml_path')
+    print(medline_xml_path)
+    medline_parquet_path= params_list.get('parquet_path')
     libraries_list = spark_config.libraries_list
     
-    print("Reading from {} and writing to {}.".format(data_path, parquet_path))
+    print("Reading from {} and writing to {}.".format(medline_xml_path, medline_parquet_path))
     
     spark = create_session(libraries_list)
     
-    hdfs_data = spark.sparkContext.wholeTextFiles(os.path.join(data_path, '*.xml.gz'), minPartitions=10000)
+    hdfs_data = spark.sparkContext.wholeTextFiles(os.path.join(medline_xml_path, '*.xml.gz'), minPartitions=10000)
     preprocess = hdfs_data.flatMap(parse_gzip_medline_str)
     medline_df = preprocess.toDF()
     
@@ -84,12 +83,12 @@ if __name__ == '__main__':
         where('is_deleted = False and pos = 1').\
         drop('is_deleted').drop('pos').drop('delete')
     
-    if not call(["hdfs", "dfs", "-test", "-d", parquet_path]):
+    if not call(["hdfs", "dfs", "-test", "-d", medline_parquet_path]):
             logging.info('Parquet Files Exist Deleting .......')
-            call(["hdfs", "dfs", "-rm", "-r", "-f", parquet_path])
+            call(["hdfs", "dfs", "-rm", "-r", "-f", medline_parquet_path])
             
     logging.info('Writing New parquet Files .......')
-    last_medline_df.write.parquet(parquet_path)
+    last_medline_df.write.parquet(medline_parquet_path)
     spark.stop()
 
     

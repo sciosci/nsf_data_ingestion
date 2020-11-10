@@ -21,7 +21,7 @@ grants_gov_param =        {'data_source_name' : grants_gov,
 medline_param =          {'data_source_name' : medline,
                           'ftp_server': medline_ftp_server,
                           'medleasebaseline_url': medline_medleasebaseline,
-                          'medlease_url': medline_medlease,
+                          'medlease_url': medline_medlease_urls,
                           'hdfs_path': medline_hdfs_path,
                           'xml_path': medline_xml_path,
                           'parquet_path': medline_parquet_path,
@@ -46,6 +46,7 @@ arxiv_param =            {'data_source_name' : arxiv,
                           'arxiv_raw_url' : arxiv_raw_url,
                           'arxiv_resume_url' : arxiv_resume_url,
                           'hdfs_path' : arxiv_hadoop_directory,
+                          'xml_path': arxiv_xml_path,
                           'download_path': arxiv_directory_path_data,
                           'timestamp_file': timestamp_file}
 
@@ -53,4 +54,3 @@ mapping =                {'federal_reporter': federal_reporter_param,
                            'medline': medline_param,
                            'pubmed': pubmed_param,
                            'arxiv': arxiv_param}
-#
