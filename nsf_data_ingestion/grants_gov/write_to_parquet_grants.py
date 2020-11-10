@@ -33,7 +33,7 @@ def convert_to_parquet(spark, project_folder):
     logging.info('Writing New parquet Files .......')
          
         
-        
+      
 
 def main():    
     project_folder = '/user/sghosh08/grants/data/xml/'

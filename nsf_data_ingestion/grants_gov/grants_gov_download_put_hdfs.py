@@ -47,7 +47,7 @@ def download_grants_data():
 #             
             
         url = "https://www.grants.gov/web/grants/xml-extract.html?download=" + filenamezip
-# #downloading last seven days files 
+## #downloading last seven days files 
         
         os.system('wget ' + url + ' -O ' + directory_path_data + filenamezip + ' -nv')
         print("Successfully extracted file from grants gov url ",filenamezip)
