@@ -297,7 +297,7 @@ Kimun_Index = BashOperator(
 # Kimun_Index = PythonOperator(
 #     task_id='Kimun_Index',
 #     python_callable = kimun_loader.kimun_load,
-# #     op_kwargs={'data_source_name': nsf_config.svd_compute},
+# # #     op_kwargs={'data_source_name': nsf_config.svd_compute},
 #     retries=8,
 #     dag=dag,
 # )
