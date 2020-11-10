@@ -27,7 +27,7 @@ def convert_to_parquet(spark, project_folder):
             
         logging.info('Writing New parquet Files .......')
         df.write.parquet(location + '.parquet')
-
+##
 def main(data_source_name):    
     project_folder = '/user/eileen/federal/xml/'
     logging.info('Creating Spark Session....')

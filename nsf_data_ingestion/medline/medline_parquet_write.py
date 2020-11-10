@@ -77,7 +77,7 @@ if __name__ == '__main__':
     medline_df = preprocess.toDF()
     
     window = Window.partitionBy(['pmid']).orderBy(desc('file_name'))
-    # only get the last version of documents
+    ##only get the last version of documents
     last_medline_df = medline_df.select(
         max('delete').over(window).alias('is_deleted'),
         rank().over(window).alias('pos'), '*').\

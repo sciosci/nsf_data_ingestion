@@ -1,5 +1,5 @@
 import sys
-# sys.path.append('/home/ananth/nsf_data_ingestion/')
+## sys.path.append('/home/ananth/nsf_data_ingestion/')
 sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 from nsf_data_ingestion.objects import data_source_params
