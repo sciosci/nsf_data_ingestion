@@ -24,7 +24,7 @@ pub_parquet_path = '/user/eileen/pub/parquet/'
 medline_directory_path_data = '/home/eileen/airflow/medline_data/'
 timestamp_file = 'time_stamp.txt'
 medline_ftp_server = 'ftp.nlm.nih.gov'
-# medline_medleasebaseline = '/nlmdata/.medleasebaseline/gz/'
+medline_medleasebaseline = '/nlmdata/.medleasebaseline/gz/'
 # medline_medlease = '/nlmdata/.medlease/gz/'
 medline_medlease_urls = ['/nlmdata/.medleasebaseline/gz/', '/nlmdata/.medlease/gz/']
 # medline_hdfs_path = '/user/ananth/medline/'
@@ -37,16 +37,17 @@ medline_parquet_path = '/user/eileen/medline/parquet/'
 #FEDERAL REPORTER VARIABLES
 fed_FedRePORTER_PRJ_url = 'https://federalreporter.nih.gov/FileDownload/DownloadFile?fileToDownload=FedRePORTER_PRJ_X_FY'
 fed_FedRePORTER_PRJABS_url = 'https://federalreporter.nih.gov/FileDownload/DownloadFile?fileToDownload=FedRePORTER_PRJABS_X_FY'
+timestamp_file = 'time_stamp.txt'
 federal_directory_path_data = '/home/eileen/federal_data/'
 federal_hdfs_path = '/user/eileen/federal/'
-federal_xml_path = '/user/eileen/federal/federal_data'
+federal_xml_path = '/user/eileen/federal/xml/'
 federal_parquet_path = '/user/eileen/federal/parquet/'
 
 #GRANTS GOV VARIABLES
 grants_gov_url = 'https://www.grants.gov/web/grants/xml-extract.html'
-grants_gov_path_data = '/home/eileen/grants/'
-grants_gov_hdfs_path = '/user/eileen/grants/data/raw/'
-grants_gov_xml_path = '/user/eileen/grants/data/xml/'
+grants_gov_path_data = '/home/eileen/grants_gov/'
+grants_gov_hdfs_path = '/user/eileen/grants/'
+grants_gov_xml_path = '/user/eileen/grants/data/'
 grants_gov_parquet_path = '/user/eileen/grants/parquet/'
 
 
