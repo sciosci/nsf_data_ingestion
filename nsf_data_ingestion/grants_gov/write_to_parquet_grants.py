@@ -32,13 +32,10 @@ def convert_to_parquet(spark, project_folder):
     forecast.write.parquet(project_folder+"forecast.parquet")   
     logging.info('Writing New parquet Files .......')
          
-        
-      
-
 def main():    
-    project_folder = '/user/sghosh08/grants/data/xml/'
+    project_folder = '/user/eileen/grants/data/xml'
     logging.info('Creating Spark Session....')
-    spark = SparkSession.builder.config('spark.jars', '/home/ananth/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '10g').config('spark.executor.cores', '3').config('spark.cores.max', '3').appName('write_grants_parquet').getOrCreate()
+    spark = SparkSession.builder.config('spark.jars', '/home/eileen/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '10g').config('spark.executor.cores', '3').config('spark.cores.max', '3').appName('write_grants_parquet').getOrCreate()
     logging.info('Writing to Parquet for grants.....')
     convert_to_parquet(spark, project_folder)
     logging.info('Parquet Write Complete grants.....')
