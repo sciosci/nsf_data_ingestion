@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/ananth/nsf_data_ingestion/')
+sys.path.append('/home/eileen/nsf_data_ingestion/')
 from nsf_data_ingestion.config import nsf_config
 
 federal_reporter_param = {'data_source_name' : nsf_config.federal_reporter,
@@ -18,9 +18,18 @@ medline_param =          {'data_source_name' : nsf_config.medline,
                           'xml_path': nsf_config.medline_xml_path,
                           'parquet_path': nsf_config.medline_parquet_path,
                           'directory_path': nsf_config.medline_directory_path_data,
-                          'hdfs_read_type': nsf_config.hdfs_read_WHOLEFILES,
+                          'hdfs_read_type': nsf_config.hdfs_read_WHOLEFILES, 
                           'ftp_server': nsf_config.medline_ftp_server,
                           'medline_medlease_urls': nsf_config.medline_medlease_urls,
+                          'timestamp_file': nsf_config.timestamp_file
+                         }
+grants_gov_param =       {'data_source_name' : nsf_config.grants_gov,
+                          'hdfs_path': nsf_config.grants_gov_hdfs_path,
+                          'xml_path': nsf_config.grants_gov_xml_path,
+                          'parquet_path': nsf_config.grants_gov_parquet_path,
+                          'directory_path': nsf_config.grants_gov_path_data,
+                          'hdfs_read_type': nsf_config.hdfs_read_WHOLEFILES,
+                          'grants_gov_urls': nsf_config.grants_gov_url,
                           'timestamp_file': nsf_config.timestamp_file
                          }
 
@@ -73,5 +82,6 @@ mapping =                {'federal_reporter': federal_reporter_param,
                            'pubmed': pubmed_param,
                            'arxiv': arxiv_param,
                            'tfidf': tfidf_params,
+                           'grants_gov' : grants_gov_param,
                            'svd_compute': svd_params
                          }

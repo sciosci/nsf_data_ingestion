@@ -1,6 +1,6 @@
 from gensim.models.lsimodel import Projection
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2/lib/spark2/')
 import pyspark
 from pyspark.ml.linalg import Vectors
 from pyspark.sql import functions as fn
@@ -27,7 +27,7 @@ def create_spark_session(name):
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/botocore.zip')
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/jmespath.zip')
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/smart_open.zip')
-    spark.sparkContext.addPyFile('/home/ananth/nsf_data_ingestion/dist/nsf_data_ingestion-0.0.1-py3.6.egg')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/dist/nsf_data_ingestion-0.0.1-py3.7.egg')
     return spark
 
 

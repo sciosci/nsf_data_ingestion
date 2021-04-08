@@ -16,14 +16,19 @@ import calendar
 import time
 from subprocess import call
 logging.getLogger().setLevel(logging.INFO)
+import reconnecting_ftp
 
 def download_med_data(param_list):
-
     medline_ftp_server = param_list.get('ftp_server')
     medline_directory_path_data = param_list.get('directory_path')
-    medline_medleasebaseline = param_list.get('medleasebaseline_url')
     timestamp_file = param_list.get('timestamp_file')
-    medline_medlease_urls = param_list.get('medlease_url')
+    medline_medlease_urls = param_list.get('medline_medlease_urls')
+
+#     medline_ftp_server = param_list.get('ftp_server')
+#     medline_directory_path_data = param_list.get('directory_path')
+#     ftp_path = param_list.get('medleasebaseline_url')
+#     timestamp_file = param_list.get('timestamp_file')
+#     medline_medlease_urls = param_list.get('medline_medlease_urls')
     
     last_load = get_last_load(medline_directory_path_data, timestamp_file)
     
@@ -33,32 +38,23 @@ def download_med_data(param_list):
         os.makedirs(medline_directory_path_data)
         
         for medline_url in medline_medlease_urls:
-            ftp = FTP(medline_ftp_server)
-            ftp.login(user='', passwd='')
-            ftp.cwd(medline_url)
-            files = ftp.nlst()
+            with reconnecting_ftp.Client(hostname=medline_ftp_server,port=21,user="",password="") as ftp:
+                ftp.cwd(medline_url)
+                files = ftp.nlst()
+                for file in files:
+                    if file.endswith('.xml.gz'):
+                        with open(medline_directory_path_data + file, 'wb') as localfile:
+                            ftp.retrbinary("RETR " + file, localfile.write)
+                        logging.info('Downloading file - ' + file + ', from ' + medline_url + '. Pleae Wait.................')
 
-            for file in files:
-                if file.endswith('.xml.gz'):
-                    localfile = open(medline_directory_path_data + file, 'wb')
-                    ftp.retrbinary("RETR " + file, localfile.write)
-                    logging.info('Downloading file - ' + file + ', from ' + medline_url + '. Pleae Wait.................')
-            ftp.quit()
-            localfile.close()
             
             logging.info('Updating TimeStamp')
-            f = open(directory_path_data + "time_stamp.txt", "a")
+            f = open(medline_directory_path_data + "time_stamp.txt", "a")
             cur_time = calendar.timegm(time.gmtime())
             f.write(str(cur_time))
             f.close()
-     
-
-    else:
-        logging.info('Data Intact......!!!!!')
-
         
 def persist(param_list):
-
     medline_hdfs_path = param_list.get('hdfs_path')
     medline_directory_path_data = param_list.get('directory_path')
     logging.info('Persisting data to HDFS')

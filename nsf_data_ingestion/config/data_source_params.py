@@ -7,6 +7,7 @@ federal_reporter_param = {'data_source_name' : federal_reporter,
                           'xml_path': federal_xml_path,
                           'parquet_path': federal_parquet_path,
                           'directory_path': federal_directory_path_data,
+                          'timestamp_file': timestamp_file,
                           'hdfs_read_type': hdfs_read_BINARY}
 
 grants_gov_param =        {'data_source_name' : grants_gov,

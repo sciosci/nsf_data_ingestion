@@ -1,5 +1,5 @@
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2/lib/spark2/')
 import xml.etree.ElementTree as ET
 import findspark
 import os
@@ -49,8 +49,6 @@ def process(file):
         return data
 
 if __name__ == '__main__':
-##     xmlpath = '/user/ananth/arxiv_data/arxiv_data/'
-#     parpath = '/user/ananth/arxiv/parquet/'
     xmlpath='/user/eileen/arxiv_data/arxiv_data/'
     parpath = '/user/eileen/arxiv/parquet/'
     spark = SparkSession.builder.getOrCreate()

@@ -33,16 +33,26 @@ from functools import reduce
 #     .appName('tfdf')\
 #     .getOrCreate()
 #     return spark
+# def create_spark_session(name):
+#     spark = SparkSession.builder.config("spark.executor.instances", '2')\
+#     .config("spark.shuffle.service.enabled", "false")\
+#     .config("spark.dynamicAllocation.enabled", "false")\
+#     .config("spark.cores.max", "1")\
+#     .config("spark.executor.cores","1")\
+#     .appName('tfdf')\
+#     .getOrCreate()
+#     return spark
+
 def create_spark_session(name):
-    spark = SparkSession.builder.config("spark.executor.instances", '2')\
+    spark = SparkSession.builder.config("spark.executor.instances", '3')\
     .config("spark.shuffle.service.enabled", "false")\
+    .config("spark.executor.memory", '30g')\
     .config("spark.dynamicAllocation.enabled", "false")\
-    .config("spark.cores.max", "1")\
-    .config("spark.executor.cores","1")\
-    .appName('tfdf')\
+    .config("spark.cores.max", "7")\
+    .config("spark.executor.cores","7")\
+    .appName('tfdif')\
     .getOrCreate()
     return spark
-
 def read_medline(spark, processed_path):
     """Creates a dataframe with the columns:
     `id`: global id
@@ -118,7 +128,7 @@ def read_medline(spark, processed_path):
 #             fn.lit(None).astype('string').alias('other_id')
 #     )
 
-def read_federal_exporter(spark, processed_path):
+def read_federal_exporter(spark, fed_processed_path):
     """Creates a dataframe with the columns:
     `id`: global id
     `source`: federal_exporter
@@ -136,8 +146,8 @@ def read_federal_exporter(spark, processed_path):
     `country`: ORGANIZATION_COUNTRY
     `other_id`: PROJECT_NUMBER
     """
-    abstracts_df = spark.read.parquet(os.path.join(processed_path, 'abstracts.parquet'))
-    projects_df = spark.read.parquet(os.path.join(processed_path, 'projects.parquet'))
+    abstracts_df = spark.read.parquet(os.path.join(fed_processed_path, 'abstracts.parquet'))
+    projects_df = spark.read.parquet(os.path.join(fed_processed_path, 'projects.parquet'))
     together_df = projects_df.join(abstracts_df, 'PROJECT_ID')
     return together_df.select(fn.concat(fn.lit('fe_'), fn.col('PROJECT_ID')).alias('id'),
         fn.lit('federal_exporter').alias('source'),
@@ -201,7 +211,7 @@ def read_federal_exporter(spark, processed_path):
 #         fn.lit(None).astype('string').alias('country'),
 #         fn.lit(None).astype('string').alias('other_id')
 #     )
-def read_arxiv(spark, processed_path):
+def read_arxiv(spark, arxiv_path):
     """Creates a dataframe with the columns:
     `id`: global id
     `source`: arxiv
@@ -215,7 +225,7 @@ def read_arxiv(spark, processed_path):
     `date`: publication date
     `content`: concatenation of abstract, affiliation, author, and journal
     """
-    arxiv_path = os.path.join(processed_path, 'parquet')
+    arxiv_path = os.path.join(arxiv_path, 'parquet')
     arxiv_df = spark.read.parquet(arxiv_path)
     return arxiv_df.select(
         fn.concat(fn.lit('arxiv_'), fn.col('id')).alias('id'),
@@ -240,7 +250,7 @@ def read_arxiv(spark, processed_path):
     )
 
 
-def read_grants_gov(spark, processed_path):
+def read_grants_gov(spark, processed_path_grants):
     """Creates a dataframe with the columns:
     `id`: global id
     `source`: grants_gov
@@ -258,10 +268,10 @@ def read_grants_gov(spark, processed_path):
     `country`: ORGANIZATION_COUNTRY
     `other_id`: PROJECT_NUMBER
     """
-    print("processed path : ", processed_path)
-    synopsis_df = spark.read.parquet(os.path.join(processed_path, 'synopsis.parquet'))
+    print("processed path : ", processed_path_grants)
+    synopsis_df = spark.read.parquet(os.path.join(processed_path_grants, 'synopsis.parquet'))
     synopsis_df=synopsis_df.withColumn("GrantorContactName",fn.col("GrantorContactText"))
-    forecast_df = spark.read.parquet(os.path.join(processed_path, 'forecast.parquet'))
+    forecast_df = spark.read.parquet(os.path.join(processed_path_grants, 'forecast.parquet'))
     forecast_df=forecast_df.drop("OpportunityTitle","AgencyCode","AgencyName","AdditionalInformationOnEligibility","OpportunityNumber","Description","PostDate", "CloseDate",'GrantorContactName')
     together_df=synopsis_df.join(forecast_df, "OpportunityID", "outer")
     
@@ -329,7 +339,7 @@ def fit_tfidf_pipeline(content_df):
 def main(data_source):
     processed_path = '/user/eileen/medline/'
     
-    fed_processed_path = '/user/eileen/data/raw/federal_exporter/'
+    fed_processed_path = '/user/eileen/federal/xml/'
     #tfidf_path = '/user/ananth/tdifupdate/'
     arxiv_path = '/user/eileen/arxiv/'
    
@@ -341,30 +351,31 @@ def main(data_source):
     tfidf_path = '/user/eileen/tfidf.parquet'
     
     #location where processed synopsis parquet for grants.gov are placed
-    processed_path_grants = '/user/eileen/grants/data/xml/'    
+    processed_path_grants = '/user/eileen/grants/'    
 
     
     spark = create_spark_session('tfidf-computation grants')
 
-    grantsgovs_df = read_grants_gov(spark,os.path.join(processed_path_grants))
+    #grantsgovs_df = read_grants_gov(spark,os.path.join(processed_path_grants))
     arxiv_df = read_arxiv(spark, arxiv_path)
+    arxiv_df.head(10)
     medline_df = read_medline(spark, processed_path)
-#     fe_df = read_federal_exporter(spark, fed_processed_path)
-    grantsgovs_df = grantsgovs_df.filter((grantsgovs_df["content"].isNotNull())).\
-                                filter("content != ' '").\
-                                    filter("content != ''")
-    split_col = pyspark.sql.functions.split(grantsgovs_df['scientists'], '&')
+    fe_df = read_federal_exporter(spark, fed_processed_path)
+#     grantsgovs_df = grantsgovs_df.filter((grantsgovs_df["content"].isNotNull())).\
+#                                 filter("content != ' '").\
+#                                     filter("content != ''")
+#     split_col = pyspark.sql.functions.split(grantsgovs_df['scientists'], '&')
 
-    grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col.getItem(0))
-    split_col1 = pyspark.sql.functions.split(grantsgovs_df['scientists'], '[0-9]')
-    grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col1.getItem(0))
-    grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["date"].cast("string"))
-    grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["end_date"].cast("string"))
-    grantsgovs_df = grantsgovs_df.withColumn("date",expr("substring(date, 4, length(date)-3)"))
-    grantsgovs_df = grantsgovs_df.withColumn("end_date",expr("substring(end_date, 4, length(end_date)-3)"))
+#     grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col.getItem(0))
+#     split_col1 = pyspark.sql.functions.split(grantsgovs_df['scientists'], '[0-9]')
+#     grantsgovs_df = grantsgovs_df.withColumn('scientists', split_col1.getItem(0))
+#     grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["date"].cast("string"))
+#     grantsgovs_df = grantsgovs_df.withColumn("date", grantsgovs_df["end_date"].cast("string"))
+#     grantsgovs_df = grantsgovs_df.withColumn("date",expr("substring(date, 4, length(date)-3)"))
+#     grantsgovs_df = grantsgovs_df.withColumn("end_date",expr("substring(end_date, 4, length(end_date)-3)"))
     
-#     dataframe_list = [medline_df, fe_df, grantsgovs_df, grantsgovs_df]
-    dataframe_list = [medline_df, grantsgovs_df, grantsgovs_df]
+    dataframe_list = [medline_df, fe_df,arxiv_df]
+    #dataframe_list = [medline_df, grantsgovs_df, grantsgovs_df]
     all_data_df = content_df = reduce(DataFrame.unionAll, dataframe_list)
 
     tfidf_transformer = fit_tfidf_pipeline(all_data_df)

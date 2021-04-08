@@ -1,5 +1,5 @@
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2/lib/spark2/')
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
@@ -41,23 +41,8 @@ default_args = {
     'retries': 3,
     'start_date': datetime(2020, 2, 24),
 }
-# default_args = {
-#     'owner':'nsf_data_ingestion',
-#     'depends_on_past': False,
-#     'retry_delay': timedelta(minutes=3),
-#     'retries': 3,
-#     'start_date': datetime(2020, 2, 24),
-#     'schedule_interval': '@weekly'
-# }
-# dag = DAG('nsf_data_ingestion', default_args = default_args, catchup=False)
-dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days = 7), catchup=False)
 
-GitClone = PythonOperator(
-    task_id='GitClone',
-    python_callable = utils_functions.pull,
-    retries=3,
-    dag=dag,
-)
+dag = DAG('nsf_data_ingestion', default_args = default_args, schedule_interval=timedelta(days = 7), catchup=False)
 
 TFDIF_Model = PythonOperator(
     task_id='TFDIF_Model',
@@ -101,12 +86,6 @@ Arxiv = BashOperator(
     retries=3,
     dag=dag,
 )
-
-Medline.set_upstream(GitClone)
-Pubmed.set_upstream(GitClone)
-Federal_Reporter.set_upstream(GitClone)
-Grants_Gov.set_upstream(GitClone)
-Arxiv.set_upstream(GitClone)
 
 Medline_Download = PythonOperator(
     task_id='Medline_Download',
@@ -220,7 +199,7 @@ Federal_Parquet.set_upstream(Federal_Persist)
 Grants_Download = PythonOperator(
     task_id='Grants_Gov_Download',
     python_callable = grants_gov_download_put_hdfs.download_grants_data,
-#     op_kwargs={'data_source_name': nsf_config.grants_gov},
+#    op_kwargs={'data_source_name': nsf_config.grants_gov},
     retries=3,
     dag=dag,
 )
@@ -228,7 +207,7 @@ Grants_Download = PythonOperator(
 Grants_Persists = PythonOperator(
     task_id='Grants_Persists',
     python_callable = grants_gov_download_put_hdfs.hdfs_put_grants_data,
-#     op_kwargs={'data_source_name': nsf_config.grants_gov},
+#    op_kwargs={'data_source_name': nsf_config.grants_gov},
     retries=3,
     dag=dag,
 )
@@ -289,18 +268,14 @@ SVD_Compute = PythonOperator(
 
 SVD_Compute.set_upstream(TFDIF_Model)
 
-Kimun_Index = BashOperator(
+Kimun_Index = PythonOperator(
     task_id='Kimun_Index',
-    bash_command='date',
-    dag=dag)
+    python_callable = kimun_loader.kimun_load,
+    #op_kwargs={'data_source_name': nsf_config.svd_compute},
+    retries=8,
+    dag=dag,
+ )
 
-# Kimun_Index = PythonOperator(
-#     task_id='Kimun_Index',
-#     python_callable = kimun_loader.kimun_load,
-# # #     op_kwargs={'data_source_name': nsf_config.svd_compute},
-#     retries=8,
-#     dag=dag,
-# )
 es_delete = BashOperator(
     task_id='es_delete',
     bash_command='python /home/eileen/nsf_data_ingestion/nsf_data_ingestion/kimun_loader/es_deleteindex.py',

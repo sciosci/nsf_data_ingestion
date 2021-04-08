@@ -1,5 +1,5 @@
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2/lib/spark2/')
 import sys
 import zipfile
 import io
@@ -33,7 +33,7 @@ def convert_to_parquet(spark, project_folder):
     logging.info('Writing New parquet Files .......')
          
 def main():    
-    project_folder = '/user/eileen/grants/data/xml'
+    project_folder = '/user/eileen/grants/data/'
     logging.info('Creating Spark Session....')
     spark = SparkSession.builder.config('spark.jars', '/home/eileen/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '10g').config('spark.executor.cores', '3').config('spark.cores.max', '3').appName('write_grants_parquet').getOrCreate()
     logging.info('Writing to Parquet for grants.....')

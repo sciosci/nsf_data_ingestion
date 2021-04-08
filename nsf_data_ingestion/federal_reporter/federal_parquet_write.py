@@ -27,11 +27,12 @@ def convert_to_parquet(spark, project_folder):
             
         logging.info('Writing New parquet Files .......')
         df.write.parquet(location + '.parquet')
-##
+
+
 def main(data_source_name): 
     project_folder = '/user/eileen/federal/xml/'
     logging.info('Creating Spark Session....')
-    spark = SparkSession.builder.config('spark.jars', '/home/eileen/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '30g').config('spark.executor.cores', '5').config('spark.cores.max', '5').appName(data_source_name).getOrCreate()
+    spark = SparkSession.builder.config('spark.jars', '/home/eileen/nsf_data_ingestion/libraries/spark-xml_2.11-0.5.0.jar').config("spark.executor.instances", '3').config("spark.executor.memory", '10g').config('spark.executor.cores', '3').config('spark.cores.max', '3').appName(data_source_name).getOrCreate()
     logging.info('Writing to Parquet.....')
     convert_to_parquet(spark, project_folder)
     logging.info('Parquet Write Complete.....')

@@ -1,5 +1,10 @@
 import findspark
-findspark.init('/opt/cloudera/parcels/SPARK2-2.3.0.cloudera3-1.cdh5.13.3.p0.458809/lib/spark2/')
+findspark.init('/opt/cloudera/parcels/SPARK2-2.4.0.cloudera2-1.cdh5.13.3.p0.1041012/lib/spark2/')
+import os, findspark
+os.environ['PYSPARK_PYTHON'] = '/home/tozeng/anaconda3/bin/python'
+os.environ['PYSPARK_DRIVER_PYTHON'] = '/home/tozeng/anaconda3/bin/python'
+import sys
+sys.path.append('/home/eileen/nsf_data_ingestion/')
 import zipfile
 import zipimport
 import io
@@ -18,9 +23,10 @@ from os import path
 from shutil import copyfile
 from shutil import rmtree
 from subprocess import call
-import sys
-# sys.path.append('/home/ananth/nsf_data_ingestion/')
-sys.path.append('/home/eileen/nsf_data_ingestion/')
+import pubmed_parser as pp
+
+#sys.path.append('/home/ananth/nsf_data_ingestion/')
+
 from nsf_data_ingestion.config import spark_config
 from nsf_data_ingestion.objects import data_source_params
 
@@ -28,13 +34,12 @@ from nsf_data_ingestion.objects import data_source_params
 def create_session(libraries_list):
     logging.info('Creating Spark Session....')
     spark = SparkSession.builder.config("spark.executor.instances", spark_config.exec_instance).\
-                                 config("spark.executor.memory", spark_config.exec_mem).\
+                                 config("spark.executor.memory", "60g").\
                                  config('spark.executor.cores', spark_config.exec_cores).\
                                  config('spark.cores.max', spark_config.exec_max_cores).\
                                  appName(data_source_name).getOrCreate()
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/pubmed_parser-0.1.0-py3.6.egg')
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/Unidecode-1.1.1-py3.6.egg')
-#     for library in libraries_list:
 #         logging.info('Adding Libraries' + str(library))
 #         spark.sparkContext.addPyFile(library)    # adding libraries
 #         spark.sparkContext.addPyFile(library)
@@ -42,35 +47,45 @@ def create_session(libraries_list):
         
     return spark
 
+# old medline(n16) parsing format
+# def parse_gzip_medline_str(gzip_str):
+#     import pubmed_parser as pp
+#     import unidecode
+    
+#     filepath = gzip_str[0]
+#     gzip_content = gzip_str[1]
+#     _, file_name = path.split(filepath)
+#     # decompress gzip
+
+#     xml_string = gzip_content.split("\n", 3)[3];    NO LONGER NEEDED
+#     articles = pp.parse_medline_xml(xml_string)
+#     return [Row(file_name=file_name, **article_dict)
+#             for article_dict in articles]
+
+
 def parse_gzip_medline_str(gzip_str):
     import pubmed_parser as pp
     import unidecode
-    print(pp.__file__)
-    print(unidecode.__file__)
     
     filepath = gzip_str[0]
-    gzip_content = gzip_str[1]
+    xml_string = gzip_str[1]
     _, file_name = path.split(filepath)
     # decompress gzip
 
-    xml_string = gzip_content.split("\n", 3)[3];
     articles = pp.parse_medline_xml(xml_string)
     return [Row(file_name=file_name, **article_dict)
             for article_dict in articles]
-
 
 if __name__ == '__main__':
     data_source_name = 'medline'
     params_list = data_source_params.mapping.get(data_source_name)
     medline_xml_path= params_list.get('xml_path')
-    print(medline_xml_path)
     medline_parquet_path= params_list.get('parquet_path')
     libraries_list = spark_config.libraries_list
     
     print("Reading from {} and writing to {}.".format(medline_xml_path, medline_parquet_path))
     
     spark = create_session(libraries_list)
-    
     hdfs_data = spark.sparkContext.wholeTextFiles(os.path.join(medline_xml_path, '*.xml.gz'), minPartitions=10000)
     preprocess = hdfs_data.flatMap(parse_gzip_medline_str)
     medline_df = preprocess.toDF()
@@ -90,7 +105,3 @@ if __name__ == '__main__':
     logging.info('Writing New parquet Files .......')
     last_medline_df.write.parquet(medline_parquet_path)
     spark.stop()
-
-    
-
-    

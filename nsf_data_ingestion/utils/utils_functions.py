@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-# sys.path.append('/home/ananth/nsf_data_ingestion/')
 sys.path.append('/home/eileen/nsf_data_ingestion/nsf_data_ingestion/')
 ## from nsf_data_ingestion.config import nsf_config
 # from nsf_data_ingestion.objects import data_source_params
@@ -26,7 +25,7 @@ def get_archive_file_list():
 
 def pull():
 #     os.chdir(nsf_config.source_path)
-    os.chdir("/home/eileen/nsf_data_ingestion/")
+    os.chdir("/home/eileen/nsf_data_ingestion/nsf_data_ingestion")
     output = subprocess.check_output(["git", "pull", "origin", "origin/feature/nsf_grants_merged"])
     logging.info('Pulled Out Branch.....')
     print(os.curdir)
