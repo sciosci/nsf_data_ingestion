@@ -40,28 +40,7 @@ def create_session(libraries_list):
                                  appName(data_source_name).getOrCreate()
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/pubmed_parser-0.1.0-py3.6.egg')
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/Unidecode-1.1.1-py3.6.egg')
-#         logging.info('Adding Libraries' + str(library))
-#         spark.sparkContext.addPyFile(library)    # adding libraries
-#         spark.sparkContext.addPyFile(library)
-
-        
     return spark
-
-# old medline(n16) parsing format
-# def parse_gzip_medline_str(gzip_str):
-#     import pubmed_parser as pp
-#     import unidecode
-    
-#     filepath = gzip_str[0]
-#     gzip_content = gzip_str[1]
-#     _, file_name = path.split(filepath)
-#     # decompress gzip
-
-#     xml_string = gzip_content.split("\n", 3)[3];    NO LONGER NEEDED
-#     articles = pp.parse_medline_xml(xml_string)
-#     return [Row(file_name=file_name, **article_dict)
-#             for article_dict in articles]
-
 
 def parse_gzip_medline_str(gzip_str):
     import pubmed_parser as pp
@@ -70,7 +49,6 @@ def parse_gzip_medline_str(gzip_str):
     filepath = gzip_str[0]
     xml_string = gzip_str[1]
     _, file_name = path.split(filepath)
-    # decompress gzip
 
     articles = pp.parse_medline_xml(xml_string)
     return [Row(file_name=file_name, **article_dict)
