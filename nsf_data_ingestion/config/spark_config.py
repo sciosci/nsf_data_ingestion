@@ -6,9 +6,6 @@ exec_mem='30g'
 exec_cores='5'
 exec_max_cores='5'
 
-libraries_list = ['/home/eileen/nsf_data_ingestion/libraries/pubmed_parser_lib.zip',
-                  '/home/eileen/nsf_data_ingestion/libraries/unidecode_lib.zip']
-
 #HDFS Parameters
 minPartitions = 10000
 

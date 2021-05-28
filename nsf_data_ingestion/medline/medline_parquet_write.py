@@ -24,14 +24,11 @@ from shutil import copyfile
 from shutil import rmtree
 from subprocess import call
 import pubmed_parser as pp
-
-#sys.path.append('/home/ananth/nsf_data_ingestion/')
-
 from nsf_data_ingestion.config import spark_config
 from nsf_data_ingestion.objects import data_source_params
 
 
-def create_session(libraries_list):
+def create_session():
     logging.info('Creating Spark Session....')
     spark = SparkSession.builder.config("spark.executor.instances", spark_config.exec_instance).\
                                  config("spark.executor.memory", "60g").\
@@ -59,11 +56,10 @@ if __name__ == '__main__':
     params_list = data_source_params.mapping.get(data_source_name)
     medline_xml_path= params_list.get('xml_path')
     medline_parquet_path= params_list.get('parquet_path')
-    libraries_list = spark_config.libraries_list
     
     print("Reading from {} and writing to {}.".format(medline_xml_path, medline_parquet_path))
     
-    spark = create_session(libraries_list)
+    spark = create_session()
     hdfs_data = spark.sparkContext.wholeTextFiles(os.path.join(medline_xml_path, '*.xml.gz'), minPartitions=10000)
     preprocess = hdfs_data.flatMap(parse_gzip_medline_str)
     medline_df = preprocess.toDF()
