@@ -23,16 +23,10 @@ def download_med_data(param_list):
     medline_directory_path_data = param_list.get('directory_path')
     timestamp_file = param_list.get('timestamp_file')
     medline_medlease_urls = param_list.get('medline_medlease_urls')
-
-#     medline_ftp_server = param_list.get('ftp_server')
-#     medline_directory_path_data = param_list.get('directory_path')
-#     ftp_path = param_list.get('medleasebaseline_url')
-#     timestamp_file = param_list.get('timestamp_file')
-#     medline_medlease_urls = param_list.get('medline_medlease_urls')
     
     last_load = get_last_load(medline_directory_path_data, timestamp_file)
     
-    if last_load >= 604800:
+    if last_load >= 518400:
         logging.info('Old Data. Downloading Updated Data')
         rmtree(medline_directory_path_data)
         os.makedirs(medline_directory_path_data)
@@ -47,7 +41,6 @@ def download_med_data(param_list):
                             ftp.retrbinary("RETR " + file, localfile.write)
                         logging.info('Downloading file - ' + file + ', from ' + medline_url + '. Pleae Wait.................')
 
-            
             logging.info('Updating TimeStamp')
             f = open(medline_directory_path_data + "time_stamp.txt", "a")
             cur_time = calendar.timegm(time.gmtime())

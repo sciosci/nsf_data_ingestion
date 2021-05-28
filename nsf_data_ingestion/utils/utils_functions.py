@@ -37,7 +37,7 @@ def get_last_load(directory_path_data, timestamp_file):
         if os.path.exists(directory_path_data + timestamp_file):
             logging.info('Timestamp Exists')
             f = open(directory_path_data + timestamp_file, "r")
-            old_time_stamp = int(f.read())
+            old_time_stamp = int(f.read()[-10:])
             current_time_stamp = calendar.timegm(time.gmtime())
             f.close()
             timediff = current_time_stamp - old_time_stamp
