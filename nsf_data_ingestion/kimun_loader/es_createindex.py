@@ -16,7 +16,7 @@ if __name__ == '__main__':
     with open(setting_path, "r") as fp:
         settings = "'" + fp.read() + "'"  # reading index settings
     header = "'Content-Type: application/json'"
-    command = 'curl -XPUT "http://128.230.247.186:9201/kimun_jim" -H ' + header + ' -d '+ settings
+    command = 'curl -XPUT "http://128.230.247.186:9201/kimun_jim2" -H ' + header + ' -d '+ settings
 
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()

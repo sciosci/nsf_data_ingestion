@@ -132,7 +132,7 @@ def kimun_load():
             "es.nodes" : "128.230.247.186",\
             "es.port" : "9201",\
             # TODO: check if the name of index is consistent with the current one
-            "es.resource" : 'kimun_jim/documents',\
+            "es.resource" : 'kimun_jim2/documents',\
             "es.input.json": "yes",\
             "es.mapping.id": "id",\
             "es.batch.size.entries": "5000",\

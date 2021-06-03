@@ -22,7 +22,7 @@ if __name__ == '__main__':
     logging.info("Last Snap Shot : ",out_health)
     print("Last Snap Shot : ",out_health)
 
-    delete_kimun = 'curl -XDELETE "http://128.230.247.186:9201/kimun_jim"'
+    delete_kimun = 'curl -XDELETE "http://128.230.247.186:9201/kimun_jim2"'
 
     p_deletekimun = subprocess.Popen(delete_kimun, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
