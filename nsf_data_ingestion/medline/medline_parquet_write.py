@@ -47,7 +47,7 @@ def parse_gzip_medline_str(gzip_str):
     xml_string = gzip_str[1]
     _, file_name = path.split(filepath)
 
-    articles = pp.parse_medline_xml(xml_string)
+    articles = pp.parse_medline_xml(bytes(xml_string, 'utf-8'))
     return [Row(file_name=file_name, **article_dict)
             for article_dict in articles]
 
