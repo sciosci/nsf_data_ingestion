@@ -35,7 +35,7 @@ def create_session():
                                  config('spark.executor.cores', spark_config.exec_cores).\
                                  config('spark.cores.max', spark_config.exec_max_cores).\
                                  appName(data_source_name).getOrCreate()
-    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/pubmed_parser-0.1.0-py3.6.egg')
+    spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/pubmed_parser-0.2.2-py3.7.egg')
     spark.sparkContext.addPyFile('/home/eileen/nsf_data_ingestion/libraries/Unidecode-1.1.1-py3.6.egg')
     return spark
 
